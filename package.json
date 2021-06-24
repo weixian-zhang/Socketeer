@@ -1,18 +1,17 @@
 {
   "name": "socketeer",
   "version": "0.1.0",
-  "main": "public/electron.js",
+  "main": "src/electron.js",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "@types/jest": "^26.0.23",
-    "@types/node": "^12.20.15",
     "@types/react": "^17.0.11",
     "@types/react-dom": "^17.0.8",
     "bootstrap": "^5.0.2",
-    "electron-is-dev": "^1.2.0",
+    "jquery": "^3.6.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
@@ -20,18 +19,12 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "dev": "concurrently -k \"npm start\" \"npm:electron\"",
+    "start": "rescripts start",
+    "build": "rescripts build",
+    "test": "rescripts test",
+    "eject": "rescripts eject",
+    "electron-dev": "concurrently -k \"npm start\" \"npm:electron\"",
     "electron": "wait-on tcp:3000 && nodemon --exec electron ."
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -46,8 +39,15 @@
     ]
   },
   "devDependencies": {
+    "@rescripts/cli": "0.0.14",
+    "@rescripts/rescript-env": "0.0.12",
+    "@types/jquery": "^3.5.5",
+    "@types/node": "^15.12.4",
+    "@types/popper.js": "^1.11.0",
     "concurrently": "^6.2.0",
     "electron": "^13.1.4",
+    "electron-builder": "^22.11.7",
+    "electron-is-dev": "^1.2.0",
     "nodemon": "^2.0.7",
     "wait-on": "^5.3.0"
   }

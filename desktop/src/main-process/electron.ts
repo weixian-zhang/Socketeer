@@ -28,7 +28,7 @@ const createWindow = (): void => {
     }
   });
 
-  // and load the index.html of the app.
+  // and load the renderer-process/index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.

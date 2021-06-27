@@ -1,0 +1,3 @@
+https://stackoverflow.com/questions/42932129/how-to-use-filesystem-fs-in-angular-cli-with-electron-js
+
+https://github.com/electron/electron-api-demos

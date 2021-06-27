@@ -1,38 +1,29 @@
 import * as React from 'react';
-
-import {IpcRenderer} from 'electron';
-
-//https://dev.to/franamorim/tutorial-reminder-widget-with-electron-react-1hj9
+import NavBar from './components/NavBar';
+import { HashRouter as Router, Route, Link, Switch } from 'react-router-dom'
+import Dashboard from './components/Dashboard';
+import TCPPane from './components/TCPPane';
 
 export default class App extends React.Component {
 
-    ipcRenderer: IpcRenderer;
-
     constructor(props: any) {
         super(props);
-
-        this.ipcRenderer = window.require('electron').ipcRenderer;
-        this.ipcRenderer.send('hello');
     }
 
-
-    // public readLocalFile(): string {
-    //     //return this.fs.readFileSync('C:/Users/weixzha/Desktop/hello.txt','utf8');
-    //     return 'hello';
-    // }
-
-    // public StartHttpServer(): void {
-
-    //     console.log(this.path.join('a','b','c'));
-
-    //     let app: Application = this.express();
-    //     app.get('/', (req: Request, res: Response) => {
-    //         let data = this.readLocalFile();
-    //         res.send('From Electron App leh. Data' + data)
-    //     })
-
-    //     app.listen(8090, () => {
-    //         console.log(`Example app listening at http://localhost:${8090}`)
-    //     })
-    // }
+    render() {
+        return (
+            <Router>
+                <div>
+                    <NavBar />
+                    <div>
+                            <Switch>
+                                <Route exact path="/" component={Dashboard} />
+                                <Route path="/dashboard" component={Dashboard} />
+                                <Route path="/tcp" component={TCPPane} />
+                            </Switch>
+                        </div>
+                </div>
+            </Router>
+        );
+    }
 }

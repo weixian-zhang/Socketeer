@@ -4,3 +4,8 @@ body {
   max-width: 38rem;
   padding: 2rem;
 }
+
+.mainPane {
+  padding-top: 3px;
+  padding-left: 3px;
+}

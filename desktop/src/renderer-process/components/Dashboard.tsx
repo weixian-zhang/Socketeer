@@ -7,7 +7,7 @@ export default class Dashboard extends React.Component {
 
     render() {
         return(
-            <div className="mainPane w-100 h-100">
+            <div>
                 Dashboard
             </div>
         );

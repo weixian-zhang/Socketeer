@@ -13,16 +13,16 @@ export default class App extends React.Component {
     render() {
         return (
             <Router>
-                <div>
-                    <NavBar />
-                    <div>
+                <div className="container-fluid">
+                        <NavBar />
+                        <div className="row">
                             <Switch>
                                 <Route exact path="/" component={Dashboard} />
                                 <Route path="/dashboard" component={Dashboard} />
                                 <Route path="/tcp" component={TCPPane} />
                             </Switch>
                         </div>
-                </div>
+                    </div>
             </Router>
         );
     }

@@ -7,7 +7,7 @@ export default class TCPPane extends React.Component {
 
     render() {
         return(
-            <div className="tcppane-container">
+            <div>
                 TCP Pane
             </div>
         );

@@ -3,3 +3,6 @@ https://stackoverflow.com/questions/42932129/how-to-use-filesystem-fs-in-angular
 https://github.com/electron/electron-api-demos
 
 //https://dev.to/franamorim/tutorial-reminder-widget-with-electron-react-1hj9
+
+typescript project reference
+https://www.typescriptlang.org/docs/handbook/project-references.html

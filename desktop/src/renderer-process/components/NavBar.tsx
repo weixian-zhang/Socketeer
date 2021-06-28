@@ -9,23 +9,25 @@ export default class NavBar extends React.Component {
     render() {
         return (
             <Router>
-                <nav className="navbar fixed-top navbar-expand-md navbar-custom">
-                    <div className="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
-                        <ul className="navbar-nav mr-auto">
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard">Dashboard</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/tcp">TCP</Link>
-                            </li>
-                        </ul>
-                    </div>
-                    <div className="collapse navbar-collapse flex-grow-0">
-                        <div className="navbar-nav text-right">
-                            <a className="nav-link" href="#">SignIn</a>
+                <div className="row">
+                    <nav className="navbar navbar-expand-md navbar-custom">
+                        <div className="navbar-collapse collapse order-md-0 dual-collapse2">
+                            <ul className="navbar-nav mr-auto">
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/dashboard">Dashboard</Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/tcp">TCP</Link>
+                                </li>
+                            </ul>
                         </div>
-                    </div>
-                </nav>
+                        <div className="d-inline-flex">
+                            <div className="navbar-nav">
+                                <a className="nav-link" href="#">Sign In</a>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
             </Router>
         );
     }

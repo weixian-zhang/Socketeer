@@ -13,6 +13,13 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json']
+    // mainFields: ['module', 'browser', 'main'],
+    // alias: Object.keys(tsconfig.compilerOptions.paths).reduce((aliases, aliasName) => {
+
+    //   aliases[aliasName] = path.resolve(__dirname, `src/${tsconfig.compilerOptions.paths[aliasName][0]}`)
+
+    //   return aliases
+    // }, {})
   },
   plugins: plugins
 };

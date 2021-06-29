@@ -1,0 +1,1 @@
+{"version":3,"file":"SocketInfo.d.ts","sourceRoot":"","sources":["../../models/SocketInfo.ts"],"names":[],"mappings":"AAAA,qBAAa,UAAU;IACnB,EAAE,EAAE,MAAM,CAAA;IACV,QAAQ,EAAE,QAAQ,CAAA;gBAEN,EAAE,EAAE,MAAM,EAAE,QAAQ,EAAE,QAAQ;CAK7C;AAED,oBAAY,QAAQ;IAChB,GAAG,IAAA;IACH,IAAI,IAAA;CACP;AAED,oBAAY,gBAAgB;IACxB,SAAS,IAAA;IACT,UAAU,IAAA;CACb"}

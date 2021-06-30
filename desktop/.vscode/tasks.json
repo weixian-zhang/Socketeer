@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "npm build",
+			"type": "npm",
+			"script": "build",
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "webpack"
+		},
+		{
+			"type": "npm",
+			"script": "start",
+			"problemMatcher": [],
+			"label": "npm start",
+			"detail": "npm run build && electron dist/main.js"
+		},
+		{
+			"type": "npm",
+			"script": "electron:serve",
+			"problemMatcher": [],
+			"label": "npm: electron:serve",
+			"detail": "npm run build && electron dist/main.js --serve --remote-debugging-port=9222"
+		}
+	]
+}

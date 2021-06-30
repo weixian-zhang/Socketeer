@@ -1,0 +1,43 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+              "request": "launch",
+              "name": "Electron: Main",
+              "protocol": "inspector",
+              "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd",
+                "windows": {
+                    "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+                },
+                "runtimeArgs": [
+                    "--remote-debugging-port=9222",
+                     ".",
+                ],
+            "cwd": "${workspaceFolder}",
+             "program": "${workspaceFolder}/src/main.ts",
+             "env": {},
+             "sourceMaps": true,
+             "outFiles": [
+                 "${workspaceRoot}/dist/**/*.js"
+             ],
+             "internalConsoleOptions": "openOnSessionStart",
+             "console": "integratedTerminal",
+             "sourceMapPathOverrides": {
+                 "webpack:///./*": "${workspaceFolder}/dist/src/*"
+              },
+			  "preLaunchTask": "npm build",
+        },
+        {
+            "name": "Electron: Renderer",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9223,
+            "webRoot": "${workspaceFolder}",
+            "timeout": 30000
+        }
+    ]
+}

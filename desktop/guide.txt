@@ -1,8 +1,9 @@
-https://stackoverflow.com/questions/42932129/how-to-use-filesystem-fs-in-angular-cli-with-electron-js
+debug Electron
+https://github.com/Microsoft/vscode-recipes/tree/master/Electron
 
-https://github.com/electron/electron-api-demos
+https://github.com/maximegris/angular-electron/issues/84
 
-//https://dev.to/franamorim/tutorial-reminder-widget-with-electron-react-1hj9
+setup
+https://www.sitepen.com/blog/getting-started-with-electron-typescript-react-and-webpack
 
-typescript project reference
-https://www.typescriptlang.org/docs/handbook/project-references.html
+https://dev.to/franamorim/tutorial-reminder-widget-with-electron-react-1hj9

@@ -3,11 +3,21 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "start",
+			"script": "dev:electron",
 			"path": "desktop/",
 			"problemMatcher": [],
 			"label": "NPM Start Desktop",
-			"detail": "electron-forge start"
-		}
+		},
+		{
+            "label": "tsc build electron",
+            "command": "tsc",
+            "type": "shell",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}/desktop",
+                "env": {}
+            },
+            "problemMatcher": []
+        },
 	]
 }

@@ -16,10 +16,10 @@
             "options": {
                 "cwd": "desktop/",
                 "env": {}
-            },
-            "dependsOn":[
-				"Webpack Build"
-			]
+            }
+            // "dependsOn":[
+			// 	"Webpack Build"
+			// ]
         },
 	]
 }

@@ -16,7 +16,7 @@ const createWindow = (): void => {
 
   console.log(`isDev: ${ isDev }`);
 
-  win.loadURL(`file://${__dirname}/src/index.html`);
+  win.loadURL(`file://${__dirname}/index.html`);
   // win.loadURL(
   //   isDev
   //     ? 'http://localhost:3000'

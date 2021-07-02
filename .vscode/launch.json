@@ -7,7 +7,7 @@
       {
           "type": "node",
           "request": "launch",
-          "name": "Electron: Main",
+          "name":  "Debug Main",
           "protocol": "inspector",
           "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron",
           "args": [
@@ -31,7 +31,7 @@
           "outputCapture" : "std"
       },
       {
-        "name": "Debug Renderer Process",
+        "name": "Debug Renderer",
         "type": "chrome",
         "request": "launch",
         "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron",
@@ -45,49 +45,14 @@
         "webRoot": "${workspaceFolder}/desktop",
         "preLaunchTask": "TSC Build",
       }
-        // {
-        //     "name": "Debug Main Process",
-        //     "type": "node",
-        //     "request": "launch",
-        //     "cwd": "${workspaceFolder}/desktop",
-        //     "program": "${workspaceFolder}/desktop/dist/main.js",
-        //     "outFiles": ["${workspaceFolder}/desktop/dist/src/**/*.js"],
-        //     "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron",
-        //     "windows": {
-        //       "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron.cmd"
-        //     },
-        //     "runtimeArgs": [
-        //       "--remote-debugging-port=9222",
-        //       "${workspaceFolder}/desktop/dist"
-        //     ],
-        //     "env": {
-        //       "NODE_ENV": "development",
-        //       "ELECTRON_DISABLE_SECURITY_WARNINGS": "true",
-        //       "ELECTRON_IS_DEV": "1"
-        //     },
-
-        //     "protocol": "inspector",
-        //     "sourceMaps": true,
-        //     "outputCapture": "std",
-        //     "preLaunchTask": "NPM Build",
-        //     "skipFiles": ["<node_internals>/**"]
-        // },
-
-        // ,
-        // {
-        //     "type": "node",
-        //     "request": "launch",
-
-        //     "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron-forge-vscode-nix",
-        //     "windows": {
-        //         "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron-forge-vscode-win.cmd"
-        //     },
-        //     // runtimeArgs will be passed directly to your Electron application
-        //     "runtimeArgs": [
-        //         "foo",
-        //         "bar"
-        //     ],
-        //     "cwd": "${workspaceFolder}/desktop"
-        // }
+    ],
+    "compounds": [
+      {
+        "name": "Debug Main & Renderer",
+        "configurations": [
+          "Debug Main",
+          "Debug Renderer"
+        ]
+      }
     ]
 }

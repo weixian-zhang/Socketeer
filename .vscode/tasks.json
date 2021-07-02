@@ -16,10 +16,20 @@
             "options": {
                 "cwd": "desktop/",
                 "env": {}
+            },
+            "dependsOn": [
+				"Webpack Build"
+			]
+        },
+		{
+            "label": "TSC Build Only",
+            "command": "tsc",
+            "type": "shell",
+            "args": [],
+            "options": {
+                "cwd": "desktop/",
+                "env": {}
             }
-            // "dependsOn":[
-			// 	"Webpack Build"
-			// ]
         },
 	]
 }

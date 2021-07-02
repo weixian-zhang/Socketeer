@@ -31,4 +31,4 @@ const createWindow = (): void => {
 app.on('ready', createWindow);
 
 const tcp = new TcpManager();
-tcp.CreateTcpServer();
+tcp.InitTcpServer();

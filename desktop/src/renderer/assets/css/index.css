@@ -1,0 +1,16 @@
+body {
+  font-family: -apple-system, "Segoe UI";
+  margin:0px;
+  padding:0px;
+  width:100%;
+  height: 100%;
+}
+
+.mainPane {
+  padding-top: 3px;
+  padding-left: 3px;
+}
+
+.btn-mr-5 {
+  margin-right: 5px;
+}

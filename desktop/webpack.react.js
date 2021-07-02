@@ -3,9 +3,9 @@ const path = require('path');
 
 module.exports = {
   mode: 'development',
-  entry: './src/renderer.tsx',
+  entry: './src/renderer/renderer.tsx',
   target: 'electron-renderer',
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   devServer: {
     contentBase: path.join(__dirname, 'dist/src/renderer.js'),
     compress: true,
@@ -35,9 +35,8 @@ module.exports = {
     ]
   },
   output: {
-    path: __dirname + '/dist/src/',
-    filename: 'renderer.js',
-    devtoolModuleFilenameTemplate: '[absolute-resource-path]'
+    path: __dirname + '/dist',
+    filename: 'bundle.js'
   },
   plugins: [
     new HtmlWebpackPlugin({

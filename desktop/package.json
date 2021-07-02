@@ -2,13 +2,14 @@
   "name": "desktop",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/main.js",
+  "main": "./dist/main.js",
   "scripts": {
+    "electron:debug": "electron . --inspect=5858 --remote-debugging-port=9223",
     "build": "webpack",
     "react:dev": "webpack serve --mode=development",
     "electron:dev": "nodemon",
     "dev": "concurrently --kill-others \"npm run react:dev\" \"npm run electron:dev\"",
-    "electron:serve": "npm run build && electron dist/main.js --serve --remote-debugging-port=9222",
+    "electron:serve": "npm run build && electron dist/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

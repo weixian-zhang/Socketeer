@@ -4,22 +4,61 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "Debug Main Process",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceRoot}/desktop",
-            "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron",
-            // "windows": {
-            //   "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron.cmd"
-            // },
+      {
+          "type": "node",
+          "request": "launch",
+          "name": "Electron: Main",
+          "protocol": "inspector",
+          "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron",
+          "args": [
+            "--remote-debugging-port=9222",
+              ".",
+              "--inspect=5858"
 
-            "env": {
-              "NODE_ENV": "development"
-            },
-            "program": "${workspaceFolder}/desktop/dist/electron/main.js",
-            "protocol": "inspector"
-        },
+          ],
+          "windows": {
+              "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron.cmd"
+          },
+          "sourceMaps": true,
+          "cwd": "${workspaceFolder}/desktop",
+          "program": "${workspaceFolder}/desktop/dist/main.js",
+          "outFiles": [
+              "${workspaceFolder}/desktop/dist/*.js",
+              "${workspaceFolder}/desktop/dist/**/*.js"
+          ],
+         "preLaunchTask": "NPM Build",
+          "internalConsoleOptions": "openOnSessionStart",
+          "outputCapture" : "std"
+      },
+        // {
+        //     "name": "Debug Main Process",
+        //     "type": "node",
+        //     "request": "launch",
+        //     "cwd": "${workspaceFolder}/desktop",
+        //     "program": "${workspaceFolder}/desktop/dist/main.js",
+        //     "outFiles": ["${workspaceFolder}/desktop/dist/src/**/*.js"],
+        //     "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron",
+        //     "windows": {
+        //       "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron.cmd"
+        //     },
+        //     "runtimeArgs": [
+        //       "--remote-debugging-port=9222",
+        //       "${workspaceFolder}/desktop/dist"
+        //     ],
+        //     "env": {
+        //       "NODE_ENV": "development",
+        //       "ELECTRON_DISABLE_SECURITY_WARNINGS": "true",
+        //       "ELECTRON_IS_DEV": "1"
+        //     },
+
+        //     "protocol": "inspector",
+        //     "sourceMaps": true,
+        //     "outputCapture": "std",
+        //     "preLaunchTask": "NPM Build",
+        //     "skipFiles": ["<node_internals>/**"]
+        // },
+
+
         {
             "name": "Debug Renderer Process",
             "type": "chrome",
@@ -31,8 +70,7 @@
             "runtimeArgs": [
               "${workspaceFolder}/desktop/lib/src/main-process/electron.js",
               "--remote-debugging-port=9222"
-            ],
-            "webRoot": "${workspaceFolder}/desktop/lib/src"
+            ]
           }
 
         // ,

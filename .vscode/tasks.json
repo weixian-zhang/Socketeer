@@ -3,13 +3,16 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "dev:electron",
-			"path": "desktop/",
+			"script": "build",
+			"path": "${workspaceFolder}/desktop",
 			"problemMatcher": [],
-			"label": "NPM Start Desktop",
+			"label": "NPM Build",
+			"dependsOn":[
+				"TSC Build"
+			]
 		},
 		{
-            "label": "tsc build electron",
+            "label": "TSC Build",
             "command": "tsc",
             "type": "shell",
             "args": [],

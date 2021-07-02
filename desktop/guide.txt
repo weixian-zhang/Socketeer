@@ -1,4 +1,7 @@
 debug Electron
+
+https://stackoverflow.com/questions/63984623/how-to-make-vs-code-debug-electron-app-reproducibly
+
 https://github.com/Microsoft/vscode-recipes/tree/master/Electron
 
 https://github.com/maximegris/angular-electron/issues/84

@@ -26,10 +26,25 @@
               "${workspaceFolder}/desktop/dist/*.js",
               "${workspaceFolder}/desktop/dist/**/*.js"
           ],
-         "preLaunchTask": "NPM Build",
+         "preLaunchTask": "TSC Build",
           "internalConsoleOptions": "openOnSessionStart",
           "outputCapture" : "std"
       },
+      {
+        "name": "Debug Renderer Process",
+        "type": "chrome",
+        "request": "launch",
+        "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron",
+        "windows": {
+          "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron.cmd"
+        },
+        "runtimeArgs": [
+          "${workspaceRoot}/desktop/dist/main.js",
+          "--remote-debugging-port=9222"
+        ],
+        "webRoot": "${workspaceFolder}/desktop",
+        "preLaunchTask": "TSC Build",
+      }
         // {
         //     "name": "Debug Main Process",
         //     "type": "node",
@@ -57,21 +72,6 @@
         //     "preLaunchTask": "NPM Build",
         //     "skipFiles": ["<node_internals>/**"]
         // },
-
-
-        {
-            "name": "Debug Renderer Process",
-            "type": "chrome",
-            "request": "launch",
-            "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron",
-            "windows": {
-              "runtimeExecutable": "${workspaceFolder}/desktop/node_modules/.bin/electron.cmd"
-            },
-            "runtimeArgs": [
-              "${workspaceFolder}/desktop/lib/src/main-process/electron.js",
-              "--remote-debugging-port=9222"
-            ]
-          }
 
         // ,
         // {

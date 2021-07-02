@@ -4,12 +4,9 @@
 		{
 			"type": "npm",
 			"script": "build",
-			"path": "${workspaceFolder}/desktop",
+			"path": "desktop/",
 			"problemMatcher": [],
-			"label": "NPM Build",
-			"dependsOn":[
-				"TSC Build"
-			]
+			"label": "Webpack Build"
 		},
 		{
             "label": "TSC Build",
@@ -17,10 +14,12 @@
             "type": "shell",
             "args": [],
             "options": {
-                "cwd": "${workspaceFolder}/desktop",
+                "cwd": "desktop/",
                 "env": {}
             },
-            "problemMatcher": []
+            "dependsOn":[
+				"Webpack Build"
+			]
         },
 	]
 }

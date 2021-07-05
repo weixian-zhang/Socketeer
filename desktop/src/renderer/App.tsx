@@ -4,7 +4,9 @@ import { HashRouter as Router, Route, Link, Switch } from 'react-router-dom'
 import Dashboard from './components/Dashboard';
 import TCPPane from './components/TCPPane';
 
-export default class App extends React.Component {
+import { hot } from "react-hot-loader";
+
+class App extends React.Component {
 
     constructor(props: any) {
         super(props);
@@ -25,3 +27,5 @@ export default class App extends React.Component {
         );
     }
 }
+
+export default hot(module)(App);

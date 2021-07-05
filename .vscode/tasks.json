@@ -2,11 +2,18 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+            "label": "Webpack Build",
 			"type": "npm",
-			"script": "build",
+			"script": "webpack-build",
 			"path": "desktop/",
 			"problemMatcher": [],
-			"label": "Webpack Build"
+		},
+		{
+            "label": "Webpack Serve",
+			"type": "npm",
+			"script": "webpack-serve",
+			"path": "desktop/",
+			"problemMatcher": [],
 		},
 		{
             "label": "TSC Build",
@@ -20,16 +27,6 @@
             "dependsOn": [
 				"Webpack Build"
 			]
-        },
-		{
-            "label": "TSC Build Only",
-            "command": "tsc",
-            "type": "shell",
-            "args": [],
-            "options": {
-                "cwd": "desktop/",
-                "env": {}
-            }
         },
 	]
 }

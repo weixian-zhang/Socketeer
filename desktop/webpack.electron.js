@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   // Build Mode
@@ -7,6 +8,11 @@ module.exports = {
   entry: './src/main/main.ts',
   devtool: 'inline-source-map',
   target: 'electron-main',
+  devServer: {
+    // contentBase: path.join(__dirname, 'dist/index.html'),
+    historyApiFallback: true,
+    port: 3100
+  },
   resolve: {
     alias: {
       ['@']: path.resolve(__dirname, 'src')
@@ -30,5 +36,10 @@ module.exports = {
   },
   externals: {
     'better-sqlite3': 'commonjs better-sqlite3'
-  }
+  },
+  plugins: [
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^fsevents$/,
+    })
+  ]
 }

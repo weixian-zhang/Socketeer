@@ -25,7 +25,10 @@
           ],
          "preLaunchTask": "Background Webpack Serve",
           "internalConsoleOptions": "openOnSessionStart",
-          "outputCapture" : "std"
+          "outputCapture" : "std",
+          "env": {
+            "ELECTRON_IS_DEV": "1"
+          }
 
       },
       {

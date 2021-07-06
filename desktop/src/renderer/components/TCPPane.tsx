@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState }  from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
@@ -6,7 +6,15 @@ import TcpService from '../services/TcpService';
 import {TcpServerView} from '../../common/models/TcpView';
 import { Utils } from '../../common/Utils';
 
-export default class TCPPane extends React.Component {
+interface AppProps {
+    //code related to your props goes here
+ }
+
+ interface AppState {
+    value: any
+ }
+
+export default class TCPPane extends React.Component<any, any> {
 
     private tcpService: TcpService;
 
@@ -14,6 +22,13 @@ export default class TCPPane extends React.Component {
         super(props);
 
         this.tcpService = new TcpService();
+
+        this.state = {
+            validateListeningPort: {
+                value: '',
+                error: false
+            }
+        };
     }
 
     render() {
@@ -28,7 +43,7 @@ export default class TCPPane extends React.Component {
                                 <FontAwesomeIcon  icon={faPlus} />
                                 TCP Server
                             </button>
-                            <button type="button" className="btn btn-success" onClick={this.TestClick}>
+                            <button type="button" className="btn btn-success">
                                 <FontAwesomeIcon  icon={faPlus} />
                                 TCP Client
                             </button>
@@ -42,31 +57,44 @@ export default class TCPPane extends React.Component {
 
                 {/* TCP Server Modal */}
                 <div className="modal fade" id="modal-tcp-server-create" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">Create TCP Server</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div className="modal-body">
-                        <div className="form-floating mb-3">
-                            <input type="text" className="form-control" id="server-listeningport" placeholder="2222" />
-                            {/* <label for="server-listeningport">Listening Port</label> */}
+                    <div className="modal-dialog modal-dialog-centered modal-sm">
+                        <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModalLabel">Create TCP Server</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div className="modal-body">
+                            <div className="mb-3">
+                                <label htmlFor="server-create-port" className="form-label">Listening Port</label>
+                                <input type="text" className={!this.state.validateListeningPort.error ? 'form-control': 'form-control is-invalid'} id="server-create-port" placeholder="e.g: 2222" required
+                                    onChange={e => {
+                                        this.setState({ validateListeningPort: { value: e.target.value, error: false }});
+                                    }} />
+                                <div className="invalid-feedback">
+                                    Please enter valid port number
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-success" onClick={e => this.CreateNewTcpServer(e)}>Create</button>
+                        </div>
                         </div>
                     </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" className="btn btn-primary">Save changes</button>
-                    </div>
-                    </div>
                 </div>
-                </div>
+                {/* TCP Server Modal end*/}
             </div>
 
         );
     }
 
+
     CreateNewTcpServer = (event: any) => {
+
+        if(!this.validateServerCreateForm())
+            return;
 
         const tcpServer = new TcpServerView(Utils.Uid(), 2222, '10.2.3.4', 2012);
         this.tcpService.CreateTcpServer(tcpServer);
@@ -74,8 +102,16 @@ export default class TCPPane extends React.Component {
         //electron.ipcRenderer.send(IPCMessage.TCP_Server_Create);
     }
 
-    TestClick() {
-        console.log('clicked');
+    private validateServerCreateForm(): boolean {
+
+        const port: number = parseInt(this.state.validateListeningPort.value);
+        if(port > 0 && port < 65536) {
+            this.setState({validateListeningPort: {error: false}});
+            return true;
+        } else {
+            this.setState({validateListeningPort: {error: true}});
+            return false;
+        }
     }
 
 }

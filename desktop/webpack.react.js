@@ -5,7 +5,7 @@ module.exports = {
   mode: 'development',
   entry: './src/renderer/renderer.tsx',
   target: 'electron-renderer',
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
   devServer: {
     contentBase: path.join(__dirname, 'dist/index.html'),
     historyApiFallback: true,

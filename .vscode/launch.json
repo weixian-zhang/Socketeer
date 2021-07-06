@@ -23,7 +23,7 @@
               "${workspaceFolder}/desktop/dist/*.js",
               "${workspaceFolder}/desktop/dist/**/*.js"
           ],
-         "preLaunchTask": "Background Webpack Serve",
+         "preLaunchTask": "Webpack Build", //"Background Webpack Serve",
           "internalConsoleOptions": "openOnSessionStart",
           "outputCapture" : "std",
           "env": {
@@ -36,9 +36,13 @@
         "type": "chrome",
         "request": "attach",
         "port": 9222,
-        "webRoot": "${workspaceFolder}/desktop",
         "sourceMaps": true,
-        "timeout": 15000
+        "timeout": 15000,
+        "webRoot": "${workspaceFolder}/desktop/dist",
+        "sourceMapPathOverrides": {
+          "/src/*": "${webRoot}/*"
+        },
+        "preLaunchTask": "Sleep for 2 secs"
       }
     ],
     "compounds": [

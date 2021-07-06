@@ -21,17 +21,13 @@ import { SocketView, SocketType, Protocol } from "./SocketView";
 
 export class TcpServerView extends SocketView {
     ListeningPort: number;
-    DestinationAddress: string
-    DestinationPort: number
     ConnectionEstablishTime: Date = new Date()
     ConnDescription: string = '';
     Error: string = '';
 
-    constructor(id: string, listeningPort: number, destinationAddress: string, destinationPort: number) {
+    constructor(id: string, listeningPort: number) {
         super(id, SocketType.Server, Protocol.TCP);
         this.ListeningPort = listeningPort;
-        this.DestinationAddress = destinationAddress;
-        this.DestinationPort = destinationPort;
     }
 }
 

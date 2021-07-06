@@ -6,8 +6,13 @@ import {
 } from './TcpServerContext';
 import net, {Socket} from 'net';
 import { TcpServerView } from 'src/common/models/TcpView';
+import { Utils } from '../common/Utils';
 
 //https://gist.github.com/sid24rane/2b10b8f4b2f814bd0851d861d3515a10
+
+class TcpServer extends net.Server {
+    Id: string = '';
+}
 
 export default class TcpServerManager {
 
@@ -26,30 +31,38 @@ export default class TcpServerManager {
         return TcpServerManager.instance;
     }
 
+    private NewTcpServer(): TcpServer {
+
+        const server = net.createServer();
+
+        const tcpServer: TcpServer = server as TcpServer;
+
+        tcpServer.Id = Utils.Uid();
+
+        return tcpServer;
+    }
+
     public CreateTcpServer(tcpInfo: TcpServerView): void {
 
-        var server = net.createServer();
-
-        this.contextOverseer.SetServerId(tcpInfo.Id, server)
+        const server = this.NewTcpServer();
 
         server.maxConnections = 10;
-server
-        server.CustomProps.Id = tcpInfo.Id;
+
 
         //emitted when server closes ...not emitted until all connections closes.
         server.on('close', () => {
-            this.contextOverseer.UpdateServerState(server.CustomProps.Id, null, ServerConnStatus.Closed);
+            this.contextOverseer.UpdateServerState(server.Id, null, ServerConnStatus.Closed);
         });
 
         server.on('error',(err: Error) => {
             if(err != null) {
-                this.contextOverseer.UpdateServerState(server.CustomProps.Id, err, ServerConnStatus.Error);
+                this.contextOverseer.UpdateServerState(server.Id, err, ServerConnStatus.Error);
             }
 
         });
 
         server.on('listening', () => {
-            this.contextOverseer.UpdateServerState(server.CustomProps.Id, null, ServerConnStatus.Listening);
+            this.contextOverseer.UpdateServerState(server.Id, null, ServerConnStatus.Listening);
         });
 
 
@@ -61,7 +74,7 @@ server
             //remote client has connected
             socket.on( "connection", () => {
                 this.contextOverseer.UpdateRemoteClientState
-                    (server.CustomProps.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.Connected);
+                    (server.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.Connected);
             });
 
             //remote client sends data to server
@@ -71,24 +84,24 @@ server
 
             socket.on( "error", (err: Error) => {
                 this.contextOverseer.UpdateRemoteClientState
-                    (server.CustomProps.Id, socket.remoteAddress, socket.remotePort, err, RemoteClientConnStatus.Error);
+                    (server.Id, socket.remoteAddress, socket.remotePort, err, RemoteClientConnStatus.Error);
             });
 
             socket.on( "timeout", () => {
                 this.contextOverseer.UpdateRemoteClientState
-                    (server.CustomProps.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.Timeout);
+                    (server.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.Timeout);
             });
 
             socket.on( "end", () => {
                 this.contextOverseer.UpdateRemoteClientState
-                    (server.CustomProps.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.RemoteClientEndConnection);
+                    (server.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.RemoteClientEndConnection);
             });
 
             socket.on( "close", err => {
                 this.contextOverseer.UpdateRemoteClientState
-                    (server.CustomProps.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.Closed);
+                    (server.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.Closed);
 
-                this.contextOverseer.RemoveRemoteClient(server.CustomProps.Id, socket.remoteAddress, socket.remotePort);
+                this.contextOverseer.RemoveRemoteClient(server.Id, socket.remoteAddress, socket.remotePort);
             });
         });
 

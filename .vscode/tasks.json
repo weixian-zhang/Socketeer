@@ -6,7 +6,10 @@
 			"type": "npm",
 			"script": "webpack-build",
 			"path": "desktop/",
-			"problemMatcher": []
+			"problemMatcher": [],
+			"dependsOn": [
+				"Background Webpack Serve"
+			]
 		},
 		{
 			//support react hot reload
@@ -14,6 +17,9 @@
 			"type": "shell",
 			"isBackground": true,
 			"command": "npm run --prefix ${workspaceFolder}/desktop webpack-serve",
+			"dependsOn": [
+				"Sleep for 3 secs"
+			]
 		},
 		{
 			//support react hot reload
@@ -27,6 +33,32 @@
 			"type": "shell",
 			"isBackground": true,
 			"command": "npm run --prefix ${workspaceFolder}/desktop webpack-serve-electron"
+		},
+		{
+			"label": "Sleep for 2 secs",
+			"type": "shell",
+			"command": "sleep 3",
+			"windows": {
+				"command": "ping 127.0.0.1 -n 2 > nul"
+			},
+			"group": "none",
+			"presentation": {
+				"reveal": "silent",
+				"panel": "new"
+			}
+		},
+		{
+			"label": "Sleep for 3 secs",
+			"type": "shell",
+			"command": "sleep 3",
+			"windows": {
+				"command": "ping 127.0.0.1 -n 3 > nul"
+			},
+			"group": "none",
+			"presentation": {
+				"reveal": "silent",
+				"panel": "new"
+			}
 		}
 	]
 }

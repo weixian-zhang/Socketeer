@@ -5,23 +5,22 @@ import { Protocol, SocketType, SocketView } from '../common/models/SocketView';
 import {Utils} from '../common/Utils';
 
 //add custom Id to net.Server
-declare module 'net' {
-    export function server(cfg: any): net.Server;
-    interface Server {
-        CustomProps:  {
-            Id: string
-        }
-    }
-}
-Object.defineProperty(net.Server.prototype, 'Custom', {
-    enumerable: false,
-    get(this: net.Server){
-        return this.CustomProps.Id;
-    },
-    set(this: net.Server, value: any){
-        this.CustomProps.Id = value;
-    }
-});
+// declare module 'net' {
+//     export function server(cfg: any): net.Server;
+//     interface Server {
+//         TcpServerId:  string
+//     }
+// }
+
+// Object.defineProperty(net.Server.prototype, 'TcpServerId', {
+//     enumerable: false,
+//     get(this: net.Server){
+//         return this.TcpServerId;
+//     },
+//     set(this: net.Server, value: any){
+//         this.TcpServerId = value;
+//     }
+// });
 
 /* Overseer */
 export class TcpServerContextOverseer {
@@ -41,13 +40,6 @@ export class TcpServerContextOverseer {
         }
 
         return TcpServerContextOverseer.instance;
-    }
-
-    public SetServerId(tcpInfoId: string, server: Server) {
-        Object.defineProperty(server, 'Id', {
-            value: tcpInfoId,
-            writable: false
-        });
     }
 
     public AddServer(serverContext: TcpServerContext): void {

@@ -6,7 +6,7 @@ module.exports = {
   mode: 'development',
   // Electron Entrypoint
   entry: './src/main/main.ts',
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
   target: 'electron-main',
   devServer: {
     // contentBase: path.join(__dirname, 'dist/index.html'),
@@ -38,8 +38,6 @@ module.exports = {
     'better-sqlite3': 'commonjs better-sqlite3'
   },
   plugins: [
-    new webpack.IgnorePlugin({
-      resourceRegExp: /^fsevents$/,
-    })
+
   ]
 }

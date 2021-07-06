@@ -1,11 +1,26 @@
 import {IpcType, TcpServerView} from '../../common/models/TcpView';
+import RendererTcpCommsCenter from '../RendererTcpCommsCenter';
 import electron from 'electron';
 
 export default class TcpService {
-    constructor() {
+
+    commsCenter: RendererTcpCommsCenter;
+    private static instance: TcpService;
+
+    private constructor() {
+        this.commsCenter = RendererTcpCommsCenter.Instance();
     }
 
-    public CreateTcpServer(tcpView: TcpServerView): void {
-        electron.ipcRenderer.send(IpcType.TCP_Server_Create, tcpView);
+    public static Instance(): TcpService {
+        if(!this.instance) {
+            this.instance = new TcpService();
+        }
+
+        return this.instance;
+    }
+
+
+    public CreateTcpServer(server: TcpServerView): void {
+        this.commsCenter.CreateTcpServer(server);
     }
 }

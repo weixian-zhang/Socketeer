@@ -15,16 +15,17 @@
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": false,
-		"inlineSourceMap": true,
-		"inlineSources":true,
-		//"sourceMap": true,
-		// "declaration": true,
-		// "declarationMap": true,
+		// "inlineSourceMap": true,
+		// "inlineSources":true,
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true,
 		"jsx": "react",
 		"baseUrl": "./",
 		"outDir": "./dist",
 		"rootDir": "src",
-		"composite": false
+		"composite": false,
+		"watch": true
 	},
 	"include": ["src/**/*.ts", "node_modules/lodash-es/**/*.js"]
   }

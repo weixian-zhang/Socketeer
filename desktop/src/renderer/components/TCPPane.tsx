@@ -21,7 +21,7 @@ export default class TCPPane extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
 
-        this.tcpService = new TcpService();
+        this.tcpService = TcpService.Instance();
 
         this.state = {
             validateListeningPort: {
@@ -96,20 +96,22 @@ export default class TCPPane extends React.Component<any, any> {
         if(!this.validateServerCreateForm())
             return;
 
-        const tcpServer = new TcpServerView(Utils.Uid(), 2222, '10.2.3.4', 2012);
+        const port: number = parseInt(this.state.validateListeningPort.value);
+
+        const tcpServer = new TcpServerView(Utils.Uid(), port);
+
         this.tcpService.CreateTcpServer(tcpServer);
 
-        //electron.ipcRenderer.send(IPCMessage.TCP_Server_Create);
     }
 
     private validateServerCreateForm(): boolean {
 
         const port: number = parseInt(this.state.validateListeningPort.value);
         if(port > 0 && port < 65536) {
-            this.setState({validateListeningPort: {error: false}});
+            this.setState({validateListeningPort: {value: this.state.validateListeningPort.value, error: false}});
             return true;
         } else {
-            this.setState({validateListeningPort: {error: true}});
+            this.setState({validateListeningPort: {value: this.state.validateListeningPort.value, error: true}});
             return false;
         }
     }

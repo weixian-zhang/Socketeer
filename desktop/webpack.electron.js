@@ -5,6 +5,7 @@ module.exports = {
   mode: 'development',
   // Electron Entrypoint
   entry: './src/main.ts',
+  devtool: 'inline-source-map',
   target: 'electron-main',
   resolve: {
     alias: {
@@ -20,6 +21,7 @@ module.exports = {
         use: [{ loader: 'ts-loader' }],
         exclude: /node_modules/,
       }
+      // { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }
     ]
   },
   output: {
@@ -27,6 +29,6 @@ module.exports = {
     filename: 'main.js'
   },
   externals: {
-    'better-sqlite3': 'commonjs better-sqlite3',
-  },
+    'better-sqlite3': 'commonjs better-sqlite3'
+  }
 }

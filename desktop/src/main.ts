@@ -36,11 +36,13 @@ const createWindow = (): void => {
 
   win.maximize();
 
-  //win.webContents.openDevTools();
+  win.webContents.openDevTools();
 
 
   MainTcpCommCenter.Instance(win);
   Db.Instance();
 }
+
+console.log('');
 
 app.on('ready', createWindow);

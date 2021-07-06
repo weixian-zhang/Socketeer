@@ -28,7 +28,7 @@ export default class TCPPane extends React.Component {
                                 <FontAwesomeIcon  icon={faPlus} />
                                 TCP Server
                             </button>
-                            <button type="button" className="btn btn-success">
+                            <button type="button" className="btn btn-success" onClick={this.TestClick}>
                                 <FontAwesomeIcon  icon={faPlus} />
                                 TCP Client
                             </button>
@@ -51,7 +51,7 @@ export default class TCPPane extends React.Component {
                     <div className="modal-body">
                         <div className="form-floating mb-3">
                             <input type="text" className="form-control" id="server-listeningport" placeholder="2222" />
-                            <label for="server-listeningport">Listening Port</label>
+                            {/* <label for="server-listeningport">Listening Port</label> */}
                         </div>
                     </div>
                     <div className="modal-footer">
@@ -72,6 +72,10 @@ export default class TCPPane extends React.Component {
         this.tcpService.CreateTcpServer(tcpServer);
 
         //electron.ipcRenderer.send(IPCMessage.TCP_Server_Create);
+    }
+
+    TestClick() {
+        console.log('clicked');
     }
 
 }

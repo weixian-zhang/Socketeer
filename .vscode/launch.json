@@ -54,7 +54,8 @@
               "${workspaceFolder}/desktop/dist/*.js",
               "${workspaceFolder}/desktop/dist/**/*.js"
           ],
-         "preLaunchTask": "TSC Build",
+         "preLaunchTask": "Webpack Build",
+        //  "postDebugTask": "TSC Build",
           "internalConsoleOptions": "openOnSessionStart",
           "outputCapture" : "std"
       },
@@ -87,8 +88,8 @@
       {
         "name": "Debug Main & Renderer",
         "configurations": [
-          "Debug Main",
-          "Debug Renderer"
+          "Desktop - Main",
+          "Desktop - Renderer"
         ]
       }
     ]

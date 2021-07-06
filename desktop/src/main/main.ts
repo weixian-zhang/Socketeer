@@ -1,15 +1,8 @@
 import { app, BrowserWindow } from 'electron';
 import isDev from 'electron-is-dev';
-import MainTcpCommCenter from './main/MainTcpCommCenter';
+import MainTcpCommCenter from './MainTcpCommCenter';
 import path from 'path';
-import Db from './main/Db';
-
-console.log(path.join(__dirname, '../', 'node_modules/.bin/electron.cmd'));
-
-// require('electron-reload')(__dirname, {
-
-//   electron: path.join(__dirname, '../', 'node_modules/.bin/electron.cmd')
-// });
+import Db from './Db';
 
 const createWindow = (): void => {
   const win = new BrowserWindow({
@@ -25,12 +18,12 @@ const createWindow = (): void => {
 
   console.log(`isDev: ${ isDev }`);
 
-  win.loadURL(`file://${__dirname}/index.html`);
-  // win.loadURL(
-  //   isDev
-  //     ? 'http://localhost:3000'
-  //     : `file://${app.getAppPath()}/index.html`,
-  // );
+  //win.loadURL(`file://${__dirname}/index.html`);
+  win.loadURL(
+    isDev
+      ? 'http://localhost:3000'
+      : `file://${__dirname}/index.html`,
+  );
 
 
 

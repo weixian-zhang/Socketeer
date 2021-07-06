@@ -5,10 +5,8 @@
   "main": "./dist/main.js",
   "scripts": {
     "electron-rebuild-sqlite3": "electron-rebuild -f -w sqlite3",
-    "electron:debug": "electron . --inspect=5858 --remote-debugging-port=9223",
     "webpack-build": "webpack",
-    "webpack-watch": "webpack --watch",
-    "webpack-serve": "webpack serve",
+    "webpack-serve": "webpack serve --config webpack.react.js --mode development --hot --inline",
     "react:dev": "webpack serve --mode=development",
     "electron:dev": "nodemon",
     "dev": "concurrently --kill-others \"npm run react:dev\" \"npm run electron:dev\"",
@@ -24,6 +22,7 @@
     "@types/react": "^17.0.11",
     "@types/react-dom": "^17.0.8",
     "autoprefixer": "^10.2.6",
+    "concurrently": "^6.2.0",
     "css-loader": "^5.2.6",
     "electron": "^13.1.4",
     "electron-is-dev": "^2.0.0",
@@ -48,7 +47,7 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.42.1",
     "webpack-cli": "^4.7.2",
-    "webpack-electron-reload": "^1.0.1"
+    "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^5.15.3",

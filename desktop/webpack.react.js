@@ -1,18 +1,14 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
-const ElectronReloadPlugin = require('webpack-electron-reload')({
-  path: path.join(__dirname, './dist/main.js'),
-});
-
 module.exports = {
   mode: 'development',
   entry: './src/renderer/renderer.tsx',
   target: 'electron-renderer',
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: path.join(__dirname, 'dist/src/renderer.js'),
-    compress: true,
+    contentBase: path.join(__dirname, 'dist/index.html'),
+    historyApiFallback: true,
     port: 3000
   },
   resolve: {
@@ -87,6 +83,5 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/renderer/index.html'
     })
-    //ElectronReloadPlugin()
   ]
 };

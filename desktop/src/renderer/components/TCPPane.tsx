@@ -1,34 +1,64 @@
 import React, { useState }  from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-
-import TcpService from '../services/TcpService';
-import {TcpServerView} from '../../common/models/TcpView';
+import electron, {IpcRendererEvent} from 'electron';
+import {TcpServerView,IpcType} from '../../common/models/TcpView';
 import { Utils } from '../../common/Utils';
-
-interface AppProps {
-    //code related to your props goes here
- }
+import {RendererTcpCommsCenter, ITcpIpcCallbacks} from '../RendererTcpCommsCenter';
 
  interface AppState {
-    value: any
+    Validation: Validation,
+    LiveServers: TcpServerView[]
+ }
+ type Validation = {
+    CreateServer: {
+        ListeningPort?: {
+            value: number,
+            error: boolean
+        },
+        ServerName?: {
+            value: string,
+            error: boolean
+        }
+    }
  }
 
-export default class TCPPane extends React.Component<any, any> {
 
-    private tcpService: TcpService;
+export default class TCPPane extends React.Component<any, AppState> implements ITcpIpcCallbacks {
+
+    private commsCenter: RendererTcpCommsCenter;
+    private _isMounted = false;
 
     constructor(props: any) {
         super(props);
 
-        this.tcpService = TcpService.Instance();
+        this.commsCenter = RendererTcpCommsCenter.Instance(this);
 
         this.state = {
-            validateListeningPort: {
-                value: '',
-                error: false
-            }
+            Validation: {
+                CreateServer: {
+                    ListeningPort: {
+                        value: 0,
+                        error: false
+                    },
+                    ServerName: {
+                        value: '',
+                        error: false
+                    },
+                }
+            },
+            LiveServers: []
         };
+    }
+
+    componentDidMount() {
+        this.InitIpcListeners();
+    }
+
+    InitIpcListeners = () => {
+        electron.ipcRenderer.on(IpcType.TCP_Server_SendData_UpdatedServerClients, (event:IpcRendererEvent, args: any) => {
+            this.OnNewSocketUpdateReceive(args);
+        });
     }
 
     render() {
@@ -51,8 +81,85 @@ export default class TCPPane extends React.Component<any, any> {
 
                     </div>
                 </div>
-                <div className="row">
+                <div className="row h-50">
+                    <div style={{overflow: 'auto', marginTop: '10px'}}>
+                        <p className="h6">Servers</p>
+                        <table className="table table-striped table-hover table-sm">
+                            <thead>
+                                <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Listening Port</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Server-1</td>
+                                    <td>2222</td>
+                                </tr>
+                                <tr>
+                                    <td colSpan={2}>
+                                        <p className="h7 mt-10">Remote Clients</p>
+                                        <table className="table mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Remote Address</th>
+                                                    <th scope="col">Remote Port</th>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Error</th>
+                                                    <th scope="col">Connected On</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>10.1.0.18</td>
+                                                    <td>3556</td>
+                                                    <td>Connected</td>
+                                                    <td>''</td>
+                                                    <td>date+time</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
+                {/* Client */}
+                <div className="row h-25">
+                    <div style={{overflow: 'auto'}}>
+                        <p className="h6">Clients</p>
+                        <table className="table table-striped table-hover table-sm">
+                            <thead>
+                                <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">First</th>
+                                <th scope="col">Last</th>
+                                <th scope="col">Handle</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                <th scope="row">1</th>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                </tr>
+                                <tr>
+                                <th scope="row">2</th>
+                                <td>Jacob</td>
+                                <td>Thornton</td>
+                                <td>@fat</td>
+                                </tr>
+                                <tr>
+                                <th scope="row">3</th>
+                                <td colSpan={2}>Larry the Bird</td>
+                                <td>@twitter</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {/* TCP Server Modal */}
@@ -67,12 +174,29 @@ export default class TCPPane extends React.Component<any, any> {
                         <div className="modal-body">
                             <div className="mb-3">
                                 <label htmlFor="server-create-port" className="form-label">Listening Port</label>
-                                <input type="text" className={!this.state.validateListeningPort.error ? 'form-control': 'form-control is-invalid'} id="server-create-port" placeholder="e.g: 2222" required
+                                <input type="text" className={!this.state.Validation.CreateServer.ListeningPort?.error ? 'form-control': 'form-control is-invalid'} id="server-create-port" placeholder="e.g: 2222" required
                                     onChange={e => {
-                                        this.setState({ validateListeningPort: { value: e.target.value, error: false }});
+                                        const validation = this.state.Validation;
+                                        validation.CreateServer.ListeningPort.value = parseInt(e.target.value);
+                                        this.setState({Validation: validation});
                                     }} />
                                 <div className="invalid-feedback">
                                     Please enter valid port number
+                                </div>
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="server-create-name" className="form-label">Name</label>
+                                <input type="text" className={!this.state.Validation.CreateServer.ServerName?.error ? 'form-control': 'form-control is-invalid'} id="server-create-port" placeholder="e.g: server-app-2222" required
+                                    maxLength={10}
+                                    onChange={e => {
+                                        const validation = this.state.Validation;
+                                        validation.CreateServer.ServerName.value = e.target.value.trim();
+                                        this.setState({Validation: validation});
+                                    }} />
+                                <div className="invalid-feedback">
+                                    Provide a friendly name to identity server
+                                    <br />
+                                    Nospace
                                 </div>
                             </div>
                         </div>
@@ -96,23 +220,59 @@ export default class TCPPane extends React.Component<any, any> {
         if(!this.validateServerCreateForm())
             return;
 
-        const port: number = parseInt(this.state.validateListeningPort.value);
+        const port: number = this.state.Validation.CreateServer.ListeningPort.value;
+        const name: string = this.state.Validation.CreateServer.ServerName?.value;
 
-        const tcpServer = new TcpServerView(Utils.Uid(), port);
+        const tcpServer = new TcpServerView(name, port);
 
-        this.tcpService.CreateTcpServer(tcpServer);
+        this.commsCenter.CreateTcpServer(tcpServer);
 
     }
 
+    public OnNewSocketUpdateReceive = (data: string) => {
+        const servers: TcpServerView[] = JSON.parse(data);
+        let svrState = this.state.LiveServers;
+        svrState = servers;
+        this.setState({LiveServers: svrState});
+    }
+
+    private onMessageInfoReceive = (info: string): void => {
+        //TODO: pop-up prompt5
+    }
+
+
+
     private validateServerCreateForm(): boolean {
 
-        const port: number = parseInt(this.state.validateListeningPort.value);
+        const errors: number[] = [];
+        const port: number =this.state.Validation.CreateServer.ListeningPort.value;
+        const name: string =this.state.Validation.CreateServer.ServerName.value;
+
+        let validation = this.state.Validation;
+
+
         if(port > 0 && port < 65536) {
-            this.setState({validateListeningPort: {value: this.state.validateListeningPort.value, error: false}});
-            return true;
+            validation.CreateServer.ListeningPort.error = false;
+            this.setState({Validation: validation});
         } else {
-            this.setState({validateListeningPort: {value: this.state.validateListeningPort.value, error: true}});
+            validation.CreateServer.ListeningPort.error = true;
+            this.setState({Validation: validation});
+            errors.push(1);
+        }
+
+        if(name != '') {
+            validation.CreateServer.ServerName.error = false;
+            this.setState({Validation: validation});
+        } else {
+            validation.CreateServer.ServerName.error = true;
+            this.setState({Validation: validation});
+            errors.push(1);
+        }
+
+        if(errors.length > 0) {
             return false;
+        } else {
+            return true;
         }
     }
 

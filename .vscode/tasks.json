@@ -2,12 +2,23 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-            "label": "Webpack Build",
-			"type": "npm",
-			"script": "webpack-build",
-			"path": "desktop/",
-			"problemMatcher": [],
+			//support react hot reload
+			"label": "Webpack Build",
+			"type": "shell",
+			"isBackground": true,
+			"command": "npm run --prefix ${workspaceFolder}/desktop webpack-build",
 			"dependsOn": [
+				"Webpack Build"
+			]
+		},
+		{
+            "label": "Webpack Debug",
+			"type": "shell",
+			"command": "echo webpack build done, webpack serve done, read to debug",
+			"isBackground": true,
+			"dependsOn": [
+				"Webpack Build",
+
 				"Background Webpack Serve"
 			]
 		},
@@ -16,10 +27,7 @@
 			"label": "Background Webpack Serve",
 			"type": "shell",
 			"isBackground": true,
-			"command": "npm run --prefix ${workspaceFolder}/desktop webpack-serve",
-			"dependsOn": [
-				"Sleep for 3 secs"
-			]
+			"command": "npm run --prefix ${workspaceFolder}/desktop webpack-serve"
 		},
 		{
 			//support react hot reload
@@ -59,6 +67,19 @@
 				"reveal": "silent",
 				"panel": "new"
 			}
-		}
+		},
+		{
+			"label": "Sleep for 5 secs",
+			"type": "shell",
+			"command": "sleep 3",
+			"windows": {
+				"command": "ping 127.0.0.1 -n 5 > nul"
+			},
+			"group": "none",
+			"presentation": {
+				"reveal": "silent",
+				"panel": "new"
+			}
+		},
 	]
 }

@@ -1,22 +1,21 @@
 export class SocketView {
-    Id: string
+    Id: string = '';
     SocketType: SocketType
     Protocol: Protocol
 
-    constructor(id: string, socketType: SocketType, protocol: Protocol) {
-        this.Id = id;
+    constructor(socketType: SocketType, protocol: Protocol) {
         this.SocketType = socketType;
         this.Protocol = protocol;
     }
 
 }
 
-export enum Protocol {
-    TCP,
-    HTTP
+export class Protocol {
+    static TCP: string = 'TCP';
+    static HTTP: string = 'HTTP';
 }
 
-export enum SocketType {
-    Server,
-    Client
+export class SocketType {
+    static Server: string = 'Server';
+    static Client: string = 'Client';
 }

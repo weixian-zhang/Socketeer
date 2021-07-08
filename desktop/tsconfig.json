@@ -9,6 +9,7 @@
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"strict": true,
+		"strictNullChecks": false /* Enable strict null checks. */,
 		"forceConsistentCasingInFileNames": true,
 		"noImplicitAny": false,
 		"moduleResolution": "node",

@@ -2,127 +2,125 @@ import {
     TcpServerContextOverseer,
     TcpServerContext,
     ServerConnStatus,
-    RemoteClientConnStatus
-} from './TcpServerContext';
+    RemoteClientConnStatus,
+    TcpServer,
+    TcpSocket
+} from './TcpContexts';
 import net, {Socket} from 'net';
 import { TcpServerView } from 'src/common/models/TcpView';
 import { Utils } from '../common/Utils';
+import MainTcpCommCenter from './MainTcpCommCenter';
+import { Protocol } from 'src/common/models/SocketView';
 
 //https://gist.github.com/sid24rane/2b10b8f4b2f814bd0851d861d3515a10
-
-class TcpServer extends net.Server {
-    Id: string = '';
-}
 
 export default class TcpServerManager {
 
     private static instance: TcpServerManager;
     private contextOverseer: TcpServerContextOverseer;
+    private commsCenter: MainTcpCommCenter;
 
-    constructor() {
+    constructor(commsCenter: MainTcpCommCenter) {
         this.contextOverseer = TcpServerContextOverseer.Instance();
+        this.commsCenter = commsCenter;
     }
 
-    public static Instance(): TcpServerManager {
+    public static Instance(commsCenter: MainTcpCommCenter): TcpServerManager {
         if(!TcpServerManager.instance) {
-            TcpServerManager.instance = new TcpServerManager();
+            TcpServerManager.instance = new TcpServerManager(commsCenter);
         }
 
         return TcpServerManager.instance;
     }
 
-    private NewTcpServer(): TcpServer {
+    public CreateTcpServer(viewInfo: TcpServerView): void {
 
-        const server = net.createServer();
+        const tcpServer: TcpServer = this.NewTcpNetServer();
 
-        const tcpServer: TcpServer = server as TcpServer;
-
-        tcpServer.Id = Utils.Uid();
-
-        return tcpServer;
-    }
-
-    public CreateTcpServer(tcpInfo: TcpServerView): void {
-
-        const server = this.NewTcpServer();
-
-        server.maxConnections = 10;
-
+        tcpServer.maxConnections = 10;
 
         //emitted when server closes ...not emitted until all connections closes.
-        server.on('close', () => {
-            this.contextOverseer.UpdateServerState(server.Id, null, ServerConnStatus.Closed);
+        tcpServer.on('close', () => {
+            this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Closed);
+
+            this.commsCenter.SendLiveTcpServerData(this.contextOverseer.GetAllLiveTcpServer());
         });
 
-        server.on('error',(err: Error) => {
+        tcpServer.on('error',(err: Error) => {
             if(err != null) {
-                this.contextOverseer.UpdateServerState(server.Id, err, ServerConnStatus.Error);
-            }
+                this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Error, err);
 
+                this.commsCenter.SendLiveTcpServerData(this.contextOverseer.GetAllLiveTcpServer());
+            }
         });
 
-        server.on('listening', () => {
-            this.contextOverseer.UpdateServerState(server.Id, null, ServerConnStatus.Listening);
+        tcpServer.on('listening', () => {
+            this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Listening);
+            this.commsCenter.SendLiveTcpServerData(this.contextOverseer.GetAllLiveTcpServer());
         });
 
 
         // emitted when new client connects
-        server.on('connection', (socket: Socket) => {
+        tcpServer.on('connection', (socket: Socket) => {
 
-            socket.setEncoding('utf-8');
+            const tcpSocket: TcpSocket = socket as TcpSocket;
+            tcpSocket.ServerId = tcpServer.Id;
+            tcpSocket.Id = Utils.Uid();
+
+            tcpSocket.setEncoding('utf-8');
 
             //remote client has connected
-            socket.on( "connection", () => {
-                this.contextOverseer.UpdateRemoteClientState
-                    (server.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.Connected);
+            tcpSocket.on( "connection", () => {
+                this.contextOverseer.AddLiveRemoteClient(tcpSocket);
             });
 
             //remote client sends data to server
-            socket.on( "data", (data: any) => {
+            tcpSocket.on( "data", (data: any) => {
                 //*TODO: send data
             });
 
-            socket.on( "error", (err: Error) => {
-                this.contextOverseer.UpdateRemoteClientState
-                    (server.Id, socket.remoteAddress, socket.remotePort, err, RemoteClientConnStatus.Error);
+            tcpSocket.on( "error", (err: Error) => {
+                this.contextOverseer.UpdateLiveRemoteClientState(tcpSocket, RemoteClientConnStatus.Error, err);
             });
 
-            socket.on( "timeout", () => {
-                this.contextOverseer.UpdateRemoteClientState
-                    (server.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.Timeout);
+            tcpSocket.on( "timeout", () => {
+                this.contextOverseer.UpdateLiveRemoteClientState(tcpSocket, RemoteClientConnStatus.Timeout);
             });
 
-            socket.on( "end", () => {
-                this.contextOverseer.UpdateRemoteClientState
-                    (server.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.RemoteClientEndConnection);
+            tcpSocket.on( "end", () => {
+                this.contextOverseer.UpdateLiveRemoteClientState(tcpSocket, RemoteClientConnStatus.EndConnection);
             });
 
-            socket.on( "close", err => {
-                this.contextOverseer.UpdateRemoteClientState
-                    (server.Id, socket.remoteAddress, socket.remotePort, null, RemoteClientConnStatus.Closed);
-
-                this.contextOverseer.RemoveRemoteClient(server.Id, socket.remoteAddress, socket.remotePort);
+            tcpSocket.on( "close", err => {
+                this.contextOverseer.RemoveLiveRemoteClient(tcpSocket);
             });
         });
 
         //static port allocation
-        server.listen(tcpInfo.ListeningPort);
+        tcpServer.listen(viewInfo.ListeningPort);
 
-        this.contextOverseer.AddServer(new TcpServerContext(tcpInfo, server));
+        this.contextOverseer.AddServer(viewInfo, tcpServer);
     }
 
     public KillSocket(id: string, remoteAddress: string, remotePort: number) {
-        const client = this.contextOverseer.GetRemoteClient(id, remoteAddress, remotePort);
 
-        if(client != null) {
+        // const socket = this.contextOverseer.GetLiveRemoteClient(id, remoteAddress, remotePort);
 
-            client.Socket.destroy();
+        // if(socket != null) {
 
-            this.contextOverseer.RemoveRemoteClient(id, remoteAddress, remotePort);
-        }
+        //     socket.destroy();
+
+        //     this.contextOverseer.RemoveLiveRemoteClient(id, remoteAddress, remotePort);
+        // }
     }
 
+    private NewTcpNetServer(): TcpServer {
 
+        const server = net.createServer();
 
+        const tcpServer: TcpServer = server as TcpServer;
+        tcpServer.Id = Utils.Uid();
 
+        return tcpServer;
+    }
 }

@@ -23,7 +23,7 @@
               "${workspaceFolder}/desktop/dist/*.js",
               "${workspaceFolder}/desktop/dist/**/*.js"
           ],
-         "preLaunchTask": "Webpack Build", //"Background Webpack Serve",
+         "preLaunchTask": "Background Webpack Serve",
           "internalConsoleOptions": "openOnSessionStart",
           "outputCapture" : "std",
           "env": {
@@ -42,7 +42,7 @@
         "sourceMapPathOverrides": {
           "/src/*": "${webRoot}/*"
         },
-        "preLaunchTask": "Sleep for 2 secs"
+        "preLaunchTask": "Sleep for 5 secs"
       }
     ],
     "compounds": [

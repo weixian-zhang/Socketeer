@@ -1,16 +1,16 @@
 import electron, {IpcMainEvent, BrowserWindow} from 'electron';
-import {TcpServerView, TcpRemoteClientDataView, IpcType} from '../common/models/TcpView';
-import TcpOverlord from './TcpOverlord';
+import {TcpServerView, IpcType} from '../common/models/TcpView';
+import TcpServerManager from './TcpServerManager';
 import { Utils } from '../common/Utils';
 
 export default class MainTcpCommCenter {
 
     private static instance: MainTcpCommCenter;
-    private tcpOverlord: TcpOverlord;
+    private tcpManager: TcpServerManager;
     private browser: BrowserWindow;
 
     private constructor(browser: BrowserWindow) {
-        this.tcpOverlord = TcpOverlord.Instance();
+        this.tcpManager = TcpServerManager.Instance(this);
         this.browser = browser;
         this.Init();
     }
@@ -28,10 +28,15 @@ export default class MainTcpCommCenter {
     }
 
     private handleIpcCreateTcpServer = (event: IpcMainEvent, args: any): void => {
-       this.tcpOverlord.CreateTcpServer(<TcpServerView>args);
+       this.tcpManager.CreateTcpServer(<TcpServerView>args);
     }
 
-    public RemoteClientSendData(data: TcpRemoteClientDataView) {
-        this.browser.webContents.send(IpcType.TCP_Server_RemoteClient_Send_Data, JSON.stringify(data));
+    //update renderer real-time on any new server and remote clients states
+    public SendLiveTcpServerData(data: TcpServerView[]) {
+        this.browser.webContents.send(IpcType.TCP_Server_SendData_UpdatedServerClients, JSON.stringify(data));
+    }
+
+    public MessageInfo(message: string) {
+        this.browser.webContents.send(IpcType.General_Message_Info, message);
     }
 }

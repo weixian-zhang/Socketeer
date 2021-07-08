@@ -1,38 +1,51 @@
 export class IpcType{
     static TCP_Server_Create: string = 'tcp-server-create';
-    static TCP_Server_RemoteClient_Send_Data: string = 'tcp-server-remoteclient-send-data';
+    static TCP_Server_SendData_UpdatedServerClients: string = 'tcp-server-senddata-updatedserveremoteclients';
+    static General_Message_Info: string = 'general-message-info';
 }
 
-export class TcpRemoteClientDataView {
+export class RemoteClientView {
+    Id: string;
     ServerId: string;
     RemoteAddress: string;
     RemotePort: number;
+    Error: string;
+    ConnEstablishTime: Date;
+    ConnStatus: string = '';
     Data: string;
 
-    constructor( serverId: string, remoteAddress: string, remotePort: number, data: string) {
+    constructor( id: string, serverId: string, remoteAddress: string, remotePort: number,
+        connEstablishTime: Date, connStatus: string) {
+        this.Id = id;
         this.ServerId = serverId;
         this.RemoteAddress = remoteAddress;
         this.RemotePort = remotePort;
-        this.Data = data;
+        this.ConnEstablishTime = connEstablishTime;
+        this.ConnStatus = connStatus;
     }
 }
 
 import { SocketView, SocketType, Protocol } from "./SocketView";
 
 export class TcpServerView extends SocketView {
+    Name: string = '';
     ListeningPort: number;
-    ConnectionEstablishTime: Date = new Date()
-    ConnDescription: string = '';
+    ConnEstablishTime: Date;
+    ConnStatus: string = '';
     Error: string = '';
+    RemoteClients: RemoteClientView[] = [];
 
-    constructor(id: string, listeningPort: number) {
-        super(id, SocketType.Server, Protocol.TCP);
+    constructor(name:string, listeningPort: number) {
+        super(SocketType.Server, Protocol.TCP);
+
+        this.Name = name;
         this.ListeningPort = listeningPort;
     }
 }
 
 export class TcpRemoteClientView {
 
+    //address + port is a unique remote client
     RemoteAddress: string = '';
     RemotePort: number = 0;
     ConnectionStatus: string = 'Connecting';

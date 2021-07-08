@@ -4,7 +4,7 @@ import {TcpServerView} from 'src/common/models/TcpView';
 import { SocketView, Protocol, SocketType } from "../common/models/SocketView";
 
 DB({
-    path: './Db/sqlite3.db', // this is the default
+    path: './dist/Db/sqlite3.db', // this is the default
     readonly: false, // read only
     fileMustExist: false, // throw error if database not exists
     WAL: true, // automatically enable 'PRAGMA journal_mode = WAL'
@@ -20,7 +20,7 @@ export default class Db {
     //db: Database;
     SocketViewTable: string = 'SocketView';
     tableExist: string = `SELECT name FROM sqlite_master WHERE type='table' AND name='${this.SocketViewTable}';`;
-    createActiveSocketTable: string = `CREATE TABLE ActiveSockets(Id PRIMARY KEY, Protocol text, SocketType text, Info text)`;
+    createSocketViewTable: string = `CREATE TABLE IF NOT EXISTS ${this.SocketViewTable}(Id PRIMARY KEY, Protocol text, SocketType text, Info text)`;
 
 
     //https://github.com/DefinitelyTyped/DefinitelyTyped/blob/5e58f71c5e96c7c4bfc316f3b5b3f39124027609/types/electron-store/electron-store-tests.ts#L1
@@ -28,6 +28,8 @@ export default class Db {
     private constructor() {
         // this.db = DB();
         //this.InitDb();
+
+        DB().exec(this.createSocketViewTable);
     }
 
     public static Instance(): Db {

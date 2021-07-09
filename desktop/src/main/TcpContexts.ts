@@ -4,6 +4,7 @@ import Db from './Db';
 import { Protocol, SocketType, SocketView } from '../common/models/SocketView';
 import {Utils} from '../common/Utils';
 import * as _ from "lodash";
+import MainTcpCommCenter  from './MainTcpCommCenter';
 
 export class TcpServer extends net.Server {
     Id: string = '';
@@ -38,15 +39,17 @@ export class TcpServerContextOverseer {
     private static instance: TcpServerContextOverseer;
     private liveServers: TcpServerContext[];
     private db: Db;
+    private commsCenter: MainTcpCommCenter;
 
-    private constructor() {
+    private constructor(commsCenter: MainTcpCommCenter) {
         this.liveServers = [];
         this.db = Db.Instance();
+        this.commsCenter = commsCenter;
     }
 
-    public static Instance(): TcpServerContextOverseer {
+    public static Instance(commsCenter: MainTcpCommCenter): TcpServerContextOverseer {
         if (!TcpServerContextOverseer.instance) {
-            TcpServerContextOverseer.instance = new TcpServerContextOverseer();
+            TcpServerContextOverseer.instance = new TcpServerContextOverseer(commsCenter);
         }
 
         return TcpServerContextOverseer.instance;
@@ -141,6 +144,8 @@ export class TcpServerContextOverseer {
                 c[index].ConnStatus = RemoteClientConnStatus[connStatus];
             }
         }
+
+        this.commsCenter.SendLiveTcpServerData(this.GetAllLiveTcpServer());
     }
 
     public RemoveLiveRemoteClient(tcpSocket: TcpSocket): void {
@@ -172,6 +177,7 @@ export class TcpServerContext {
         this.TcpServerView = tcpServerView;
         this.TcpServerView.ConnEstablishTime = new Date();
         this.TcpServerView.ConnStatus = ServerConnStatus[ServerConnStatus.NotListening];
+        this.sockets = [];
     }
 
     public Id(): string {

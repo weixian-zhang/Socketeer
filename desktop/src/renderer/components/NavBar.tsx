@@ -10,7 +10,7 @@ export default class NavBar extends React.Component {
         return (
             <Router>
                 <div className="row">
-                    <nav className="nav nav-tabs navbar-expand-md navbar-custom">
+                    <nav className="nav nav-tabs navbar-expand-md navbar-custom bg-success justify-content-center">
                         <div className="navbar-collapse collapse order-md-0 dual-collapse2">
                             <ul className="navbar-nav mr-auto">
                                 <li className="nav-item">

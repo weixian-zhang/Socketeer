@@ -21,8 +21,8 @@ export default class TcpServerManager {
     private commsCenter: MainTcpCommCenter;
 
     constructor(commsCenter: MainTcpCommCenter) {
-        this.contextOverseer = TcpServerContextOverseer.Instance();
         this.commsCenter = commsCenter;
+        this.contextOverseer = TcpServerContextOverseer.Instance(this.commsCenter);
     }
 
     public static Instance(commsCenter: MainTcpCommCenter): TcpServerManager {
@@ -56,6 +56,7 @@ export default class TcpServerManager {
 
         tcpServer.on('listening', () => {
             this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Listening);
+
             this.commsCenter.SendLiveTcpServerData(this.contextOverseer.GetAllLiveTcpServer());
         });
 
@@ -69,10 +70,8 @@ export default class TcpServerManager {
 
             tcpSocket.setEncoding('utf-8');
 
-            //remote client has connected
-            tcpSocket.on( "connection", () => {
-                this.contextOverseer.AddLiveRemoteClient(tcpSocket);
-            });
+            this.contextOverseer.AddLiveRemoteClient(tcpSocket);
+            this.commsCenter.SendLiveTcpServerData(this.contextOverseer.GetAllLiveTcpServer());
 
             //remote client sends data to server
             tcpSocket.on( "data", (data: any) => {

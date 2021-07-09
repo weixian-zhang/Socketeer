@@ -2,8 +2,10 @@ import React, { useState }  from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import electron, {IpcRendererEvent} from 'electron';
-import {TcpServerView,IpcType} from '../../common/models/TcpView';
-import { Utils } from '../../common/Utils';
+import {TcpServerView,IpcType, RemoteClientView, TcpRemoteClientView} from '../../common/models/TcpView';
+import $ from 'jquery';
+import * as bootstrap from 'bootstrap';
+import * as _ from 'lodash';
 import {RendererTcpCommsCenter, ITcpIpcCallbacks} from '../RendererTcpCommsCenter';
 
  interface AppState {
@@ -92,35 +94,63 @@ export default class TCPPane extends React.Component<any, AppState> implements I
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Server-1</td>
-                                    <td>2222</td>
-                                </tr>
-                                <tr>
-                                    <td colSpan={2}>
-                                        <p className="h7 mt-10">Remote Clients</p>
-                                        <table className="table mb-0">
-                                            <thead>
+                                {
+                                    () => {
+                                        this.state.LiveServers.map((server: TcpServerView, i) => {
+                                            <tr>
+                                                <td>{server.Name}</td>
+                                                <td>{server.ListeningPort}</td>
+                                            </tr>
+                                            (server.RemoteClients.length > 0) ?
                                                 <tr>
-                                                    <th scope="col">Remote Address</th>
-                                                    <th scope="col">Remote Port</th>
-                                                    <th scope="col">Status</th>
-                                                    <th scope="col">Error</th>
-                                                    <th scope="col">Connected On</th>
+                                                    <td colSpan={2}>
+                                                        <p className="h7 mt-10">Remote Clients</p>
+                                                        <table className="table mb-0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">client</th>
+                                                                    <th scope="col">Remote Port</th>
+                                                                    <th scope="col">Status</th>
+                                                                    <th scope="col">Error</th>
+                                                                    <th scope="col">Connected On</th>
+                                                                </tr>
+                                                            </thead>
+                                                            {
+                                                                server.RemoteClients.map((client: RemoteClientView, i) => {
+                                                                    <tr>
+                                                                        <td colSpan={2}>
+                                                                            <p className="h7 mt-10">Remote Clients</p>
+                                                                            <table className="table mb-0">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th scope="col">client</th>
+                                                                                        <th scope="col">Remote Port</th>
+                                                                                        <th scope="col">Status</th>
+                                                                                        <th scope="col">Error</th>
+                                                                                        <th scope="col">Connected On</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <th scope="col">client.RemoteAddress</th>
+                                                                                        <th scope="col">client.RemotePort</th>
+                                                                                        <th scope="col">client.ConnStatus</th>
+                                                                                        <th scope="col">client.Error</th>
+                                                                                        <th scope="col">client.ConnEstablishTime</th>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                })
+                                                            }
+                                                        </table>
+                                                    </td>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>10.1.0.18</td>
-                                                    <td>3556</td>
-                                                    <td>Connected</td>
-                                                    <td>''</td>
-                                                    <td>date+time</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
+                                            : ''
+                                        });
+                                    }
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -227,6 +257,7 @@ export default class TCPPane extends React.Component<any, AppState> implements I
 
         this.commsCenter.CreateTcpServer(tcpServer);
 
+        $('#modal-tcp-server-create').modal('hide');
     }
 
     public OnNewSocketUpdateReceive = (data: string) => {
@@ -239,8 +270,6 @@ export default class TCPPane extends React.Component<any, AppState> implements I
     private onMessageInfoReceive = (info: string): void => {
         //TODO: pop-up prompt5
     }
-
-
 
     private validateServerCreateForm(): boolean {
 

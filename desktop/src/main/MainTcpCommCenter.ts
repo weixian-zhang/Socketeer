@@ -1,5 +1,5 @@
 import electron, {IpcMainEvent, BrowserWindow} from 'electron';
-import {TcpServerView, IpcType} from '../common/models/TcpView';
+import {TcpServerView, IpcType, TcpDataView} from '../common/models/TcpView';
 import TcpServerManager from './TcpServerManager';
 import { Utils } from '../common/Utils';
 
@@ -24,19 +24,42 @@ export default class MainTcpCommCenter {
     }
 
     public Init() {
-        electron.ipcMain.on(IpcType.TCP_Server_Create, this.handleIpcCreateTcpServer);
+        electron.ipcMain.on(IpcType.TCP_Server_Create, this.OnCreateTcpServer);
+
+        electron.ipcMain.on(IpcType.TCP_Server_GetData_UpdatedServerClients, this.OnGetLiveServerdata);
+
+        electron.ipcMain.on(IpcType.TCP_Server_SendData_ToRemoteClient, this.OnSendDataToRemoteClient);
+
+        electron.ipcMain.on(IpcType.TCP_Server_Disconnect_Remote_Client, this.OnDisconnectRemoteClient);
     }
 
-    private handleIpcCreateTcpServer = (event: IpcMainEvent, args: any): void => {
+    private OnCreateTcpServer = (event: IpcMainEvent, args: any): void => {
        this.tcpManager.CreateTcpServer(<TcpServerView>args);
     }
 
+    private OnGetLiveServerdata= (event: IpcMainEvent, args: any): void => {
+        this.tcpManager.GetLiveServerdata();
+    }
+
     //update renderer real-time on any new server and remote clients states
-    public SendLiveTcpServerData(data: TcpServerView[]) {
+    public SendNewServerStateToRenderer(data: TcpServerView[]) {
         this.browser.webContents.send(IpcType.TCP_Server_SendData_UpdatedServerClients, JSON.stringify(data));
     }
 
-    public MessageInfo(message: string) {
+
+    public OnSendDataToRemoteClient = (event: IpcMainEvent, args: any): void => {
+        const dataObj = JSON.parse(args);
+        const {data, serverId, socketId} = dataObj;
+
+        this.tcpManager.SendDataToRemoteClient(data, serverId, socketId);
+    }
+
+    private OnDisconnectRemoteClient = (event: IpcMainEvent, args: any): void => {
+        const {serverId, socketId} = JSON.parse(args);
+        this.tcpManager.DisconnectRemoteClient(serverId, socketId);
+    }
+
+    public MessageToRenderer(message: string) {
         this.browser.webContents.send(IpcType.General_Message_Info, message);
     }
 }

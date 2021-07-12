@@ -9,3 +9,15 @@ nav .navbar-nav li a{
 nav .navbar-nav  a{
     color: white !important;
 }
+
+.modal-dialog-tcpdatar,
+.modal-content-tcpdatar {
+    /* 80% of window height */
+    height: 70%;
+}
+
+.modal-body-tcpdatar {
+    /* 100% = dialog height, 120px = header + footer */
+    max-height: calc(100% - 120px);
+    overflow-y: scroll;
+}

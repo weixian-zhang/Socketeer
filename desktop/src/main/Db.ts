@@ -1,6 +1,6 @@
 import DB from 'better-sqlite3-helper';
 //import {Database} from 'better-sqlite3'
-import {TcpServerView} from 'src/common/models/TcpView';
+import {TcpServerView} from '../common/models/TcpView';
 import { SocketView, Protocol, SocketType } from "../common/models/SocketView";
 
 DB({

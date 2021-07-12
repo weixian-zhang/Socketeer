@@ -1,4 +1,4 @@
-import {RemoteClientView, TcpServerView} from '../common/models/TcpView'
+import {RemoteClientView, TcpServerView, TcpDataView} from '../common/models/TcpView'
 import net, {Socket} from 'net';
 import Db from './Db';
 import { Protocol, SocketType, SocketView } from '../common/models/SocketView';
@@ -63,6 +63,19 @@ export class TcpServerContextOverseer {
         return svrViews;
     }
 
+    public IsListeningPortTaken(port: number): boolean {
+       const server = this.liveServers.find(x => x.TcpServerView.ListeningPort == port);
+       if(!Utils.IsUoN(server))
+            return true;
+        else
+            return false;
+    }
+
+    public GetServer(serverId: string) {
+        const server = this.liveServers.find(x => x.Id() == serverId);
+        return server;
+    }
+
     public AddServer(viewInfo: TcpServerView, tcpServer: TcpServer): void {
 
         viewInfo.ConnStatus = ServerConnStatus.NotListening;
@@ -100,14 +113,34 @@ export class TcpServerContextOverseer {
         }
     }
 
-    public GetLiveRemoteClient(serverId: string, remoteAddress: string, remotePort: number): Socket | null {
+    public GetLiveClientSocket(serverId: string, socketId: string): TcpSocket | null {
 
         let serverContext = this.liveServers.find(x => x.Id() == serverId );
 
-        const client = serverContext.sockets.find
-            (x => x.remoteAddress == remoteAddress && x.remotePort == remotePort);
+        if(Utils.IsUoN(serverContext))
+            return null;
 
-        return client;
+        const socket = serverContext.sockets.find(x => x.Id == socketId);
+
+        if(Utils.IsUoN(socket))
+            return null;
+        else
+            return socket;
+    }
+
+    public GetLiveClientView(serverId: string, socketId: string): RemoteClientView | null {
+
+        let serverContext = this.liveServers.find(x => x.Id() == serverId );
+
+        if(Utils.IsUoN(serverContext))
+            return null;
+
+        const client = serverContext.TcpServerView.RemoteClients.find(x => x.Id == socketId);
+
+        if(Utils.IsUoN(client))
+            return null;
+        else
+            return client;
     }
 
     public AddLiveRemoteClient(socket: TcpSocket) {
@@ -145,22 +178,26 @@ export class TcpServerContextOverseer {
             }
         }
 
-        this.commsCenter.SendLiveTcpServerData(this.GetAllLiveTcpServer());
+        this.commsCenter.SendNewServerStateToRenderer(this.GetAllLiveTcpServer());
     }
 
-    public RemoveLiveRemoteClient(tcpSocket: TcpSocket): void {
+    public RemoveLiveRemoteClient(serverId: string, socketId: string): void {
 
-        const { Id, ServerId } = tcpSocket;
+        let tcpServerContext = this.liveServers.find(x => x.Id() == serverId );
 
-        let tcpServerContext = this.liveServers.find(x => x.Id() == ServerId );
-
-        if(tcpServerContext != null) {
+        if(!Utils.IsUoN(tcpServerContext)) {
             //remote UI view
-            _.remove(tcpServerContext.TcpServerView.RemoteClients, x => x.Id == Id);
+            _.remove(tcpServerContext.TcpServerView.RemoteClients, x => x.Id == socketId);
 
             //remove socket from ServerContext
-            _.remove(tcpServerContext.sockets, x => x.Id == Id);
+            _.remove(tcpServerContext.sockets, x => x.Id == socketId);
         }
+    }
+
+    public AppendReceiveOrSentData(data: string, serverId: string, socketId: string, isReceive: boolean) {
+        const clientView = this.GetLiveClientView(serverId, socketId);
+
+        clientView.Data.push(new TcpDataView(serverId, socketId, String(data), isReceive));
     }
 }
 

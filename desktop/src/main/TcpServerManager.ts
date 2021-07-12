@@ -7,7 +7,7 @@ import {
     TcpSocket
 } from './TcpContexts';
 import net, {Socket} from 'net';
-import { TcpServerView } from 'src/common/models/TcpView';
+import { TcpDataView, TcpServerView } from '../common/models/TcpView';
 import { Utils } from '../common/Utils';
 import MainTcpCommCenter from './MainTcpCommCenter';
 import { Protocol } from 'src/common/models/SocketView';
@@ -33,7 +33,14 @@ export default class TcpServerManager {
         return TcpServerManager.instance;
     }
 
+
     public CreateTcpServer(viewInfo: TcpServerView): void {
+
+        //check if port is in use
+        if(this.contextOverseer.IsListeningPortTaken(viewInfo.ListeningPort)) {
+            this.commsCenter.MessageToRenderer(`Listening port ${viewInfo.ListeningPort} is in use`);
+            return;
+        }
 
         const tcpServer: TcpServer = this.NewTcpNetServer();
 
@@ -43,21 +50,22 @@ export default class TcpServerManager {
         tcpServer.on('close', () => {
             this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Closed);
 
-            this.commsCenter.SendLiveTcpServerData(this.contextOverseer.GetAllLiveTcpServer());
+            this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
         });
 
         tcpServer.on('error',(err: Error) => {
             if(err != null) {
+
                 this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Error, err);
 
-                this.commsCenter.SendLiveTcpServerData(this.contextOverseer.GetAllLiveTcpServer());
+                this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
             }
         });
 
         tcpServer.on('listening', () => {
             this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Listening);
 
-            this.commsCenter.SendLiveTcpServerData(this.contextOverseer.GetAllLiveTcpServer());
+            this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
         });
 
 
@@ -71,11 +79,12 @@ export default class TcpServerManager {
             tcpSocket.setEncoding('utf-8');
 
             this.contextOverseer.AddLiveRemoteClient(tcpSocket);
-            this.commsCenter.SendLiveTcpServerData(this.contextOverseer.GetAllLiveTcpServer());
+            this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
 
             //remote client sends data to server
             tcpSocket.on( "data", (data: any) => {
-                //*TODO: send data
+                this.contextOverseer.AppendReceiveOrSentData(data, tcpSocket.ServerId, tcpSocket.Id, true);
+                this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
             });
 
             tcpSocket.on( "error", (err: Error) => {
@@ -91,8 +100,10 @@ export default class TcpServerManager {
             });
 
             tcpSocket.on( "close", err => {
-                this.contextOverseer.RemoveLiveRemoteClient(tcpSocket);
+                this.contextOverseer.RemoveLiveRemoteClient(tcpSocket.ServerId, tcpSocket.Id);
+                this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
             });
+
         });
 
         //static port allocation
@@ -101,16 +112,34 @@ export default class TcpServerManager {
         this.contextOverseer.AddServer(viewInfo, tcpServer);
     }
 
-    public KillSocket(id: string, remoteAddress: string, remotePort: number) {
+    public SendDataToRemoteClient(data: string, serverId: string, socketId: string) {
+        const socket = this.contextOverseer.GetLiveClientSocket(serverId, socketId);
 
-        // const socket = this.contextOverseer.GetLiveRemoteClient(id, remoteAddress, remotePort);
+        if(Utils.IsUoN(socket)) {
+            this.commsCenter.MessageToRenderer('Error on Send-Data-To-Remote-Client, socket not found');
+            return;
+        }
 
-        // if(socket != null) {
+        socket.write(data, (err: Error) => {
+            if(!Utils.IsUoN(err))
+                this.commsCenter.MessageToRenderer(`Error on Send-Data-To-Remote-Client - ${err.message}`);
+        });
 
-        //     socket.destroy();
+        this.contextOverseer.AppendReceiveOrSentData(data, serverId, socketId, false);
 
-        //     this.contextOverseer.RemoveLiveRemoteClient(id, remoteAddress, remotePort);
-        // }
+        this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
+    }
+
+    public DisconnectRemoteClient(serverId: string, socketId: string) {
+        const socket: TcpSocket = this.contextOverseer.GetLiveClientSocket(serverId, socketId);
+
+        socket.destroy();
+
+        this.contextOverseer.RemoveLiveRemoteClient(serverId, socketId);
+    }
+
+    public GetLiveServerdata = (): void => {
+        this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
     }
 
     private NewTcpNetServer(): TcpServer {

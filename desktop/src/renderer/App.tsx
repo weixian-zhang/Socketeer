@@ -2,9 +2,7 @@ import * as React from 'react';
 import NavBar from './components/NavBar';
 import { HashRouter as Router, Route, Link, Switch } from 'react-router-dom'
 import Dashboard from './components/Dashboard';
-import TCPPane from './components/TCPPane';
-
-// import { hot } from "react-hot-loader";
+import TCPServerPane from './components/TCPServerPane';
 
 export default class App extends React.Component {
 
@@ -16,13 +14,13 @@ export default class App extends React.Component {
         return (
             <Router>
                 <div className="container-fluid">
-                        <NavBar />
-                        <Switch>
+                    <NavBar />
+                    <Switch>
                             <Route exact path="/" component={Dashboard} />
                             <Route path="/dashboard" component={Dashboard} />
-                            <Route path="/tcp" component={TCPPane} />
+                            <Route path="/tcp" component={TCPServerPane} />
                         </Switch>
-                    </div>
+                </div>
             </Router>
         );
     }

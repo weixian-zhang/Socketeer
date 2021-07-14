@@ -24,6 +24,8 @@ export default class MainTcpCommCenter {
     }
 
     public Init() {
+        electron.ipcMain.on(IpcType.TCP_Server_Create_On_Startup, this.CreateSavedTcpServers);
+
         electron.ipcMain.on(IpcType.TCP_Server_Create, this.OnCreateTcpServer);
 
         electron.ipcMain.on(IpcType.TCP_Server_GetData_UpdatedServerClients, this.OnGetLiveServerdata);
@@ -31,6 +33,10 @@ export default class MainTcpCommCenter {
         electron.ipcMain.on(IpcType.TCP_Server_SendData_ToRemoteClient, this.OnSendDataToRemoteClient);
 
         electron.ipcMain.on(IpcType.TCP_Server_Disconnect_Remote_Client, this.OnDisconnectRemoteClient);
+    }
+
+    private CreateSavedTcpServers = (event: IpcMainEvent, args: any): void => {
+        this.tcpManager.CreateSavedTcpServers();
     }
 
     private OnCreateTcpServer = (event: IpcMainEvent, args: any): void => {

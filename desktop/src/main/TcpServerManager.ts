@@ -10,7 +10,7 @@ import net, {Socket} from 'net';
 import { TcpDataView, TcpServerView } from '../common/models/TcpView';
 import { Utils } from '../common/Utils';
 import MainTcpCommCenter from './MainTcpCommCenter';
-import { Protocol } from 'src/common/models/SocketView';
+import * as _ from 'lodash';
 
 //https://gist.github.com/sid24rane/2b10b8f4b2f814bd0851d861d3515a10
 
@@ -31,6 +31,14 @@ export default class TcpServerManager {
         }
 
         return TcpServerManager.instance;
+    }
+
+    public CreateSavedTcpServers = () => {
+        const savedServers: TcpServerView[] = this.contextOverseer.GetAllSavedTcpServers();
+
+        _.each(savedServers, (s) => {
+            this.CreateTcpServer(s);
+        });
     }
 
 

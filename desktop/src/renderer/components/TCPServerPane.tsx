@@ -61,7 +61,10 @@ export default class TCPServerPane extends React.Component<any, AppState> {
             }
         };
 
-        this.GetLiveTcpServerData();
+        this.CreateSavedTcpServers();
+
+
+        //this.GetLiveTcpServerData();
     }
 
     componentDidMount() {
@@ -81,6 +84,10 @@ export default class TCPServerPane extends React.Component<any, AppState> {
         electron.ipcRenderer.on(IpcType.General_Message_Info, (event:IpcRendererEvent, args: any) => {
             this.ShowMessageFromMain(args);
         });
+    }
+
+    CreateSavedTcpServers() {
+        electron.ipcRenderer.send(IpcType.TCP_Server_Create_On_Startup);
     }
 
     render() {

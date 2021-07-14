@@ -42,7 +42,6 @@ const createWindow = (): void => {
 
 
   MainTcpCommCenter.Instance(win);
-  Db.Instance();
 }
 
 console.log('');

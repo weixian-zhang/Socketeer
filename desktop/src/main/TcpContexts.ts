@@ -55,6 +55,10 @@ export class TcpServerContextOverseer {
         return TcpServerContextOverseer.instance;
     }
 
+    public GetAllSavedTcpServers(): TcpServerView[] {
+       return  this.db.GetAllTcpServers();
+    }
+
     public GetAllLiveTcpServer(): TcpServerView[] {
         const svrViews: TcpServerView[] = [];
 

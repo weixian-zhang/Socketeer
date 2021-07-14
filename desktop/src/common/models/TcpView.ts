@@ -1,4 +1,5 @@
 export class IpcType{
+    static TCP_Server_Create_On_Startup: string = 'tcp-server-create-on-startup';
     static TCP_Server_Create: string = 'tcp-server-create';
     static TCP_Server_Disconnect_Remote_Client: string = 'tcp-server-disconnect-remote-client';
     static TCP_Server_GetData_UpdatedServerClients: string = 'tcp-server-getdata-updatedserveremoteclients';

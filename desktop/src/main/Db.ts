@@ -1,7 +1,7 @@
 import DB from 'better-sqlite3-helper';
-//import {Database} from 'better-sqlite3'
 import {TcpServerView} from '../common/models/TcpView';
 import { SocketView, Protocol, SocketType } from "../common/models/SocketView";
+import * as _ from 'lodash';
 
 DB({
     path: './dist/Db/sqlite3.db', // this is the default
@@ -38,6 +38,19 @@ export default class Db {
         }
 
         return Db.instance;
+    }
+
+    public GetAllTcpServers(): TcpServerView[] {
+        let rows: any[] =
+            DB().query(`SELECT Info FROM ${this.SocketViewTable} WHERE Protocol=? AND SocketType=?`, Protocol.TCP, SocketType.Server);
+
+        const tcpServers: TcpServerView[] = [];
+
+        _.each(rows, function(r) {
+            tcpServers.push(r as TcpServerView)
+        });
+
+        return tcpServers;
     }
 
     public AddSocket(socketView: SocketView, info: any): void {

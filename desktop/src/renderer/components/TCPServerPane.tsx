@@ -4,7 +4,7 @@ import { faPlus, faReply, faPaperPlane } from '@fortawesome/free-solid-svg-icons
 import electron, {IpcRendererEvent} from 'electron';
 import {TcpServerView,IpcType, RemoteClientView, TcpDataView} from '../../common/models/TcpView';
 import $ from 'jquery';
-import {Modal} from 'bootstrap/dist/js/bootstrap.bundle.min';
+import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as _ from 'lodash';
 import moment from 'moment';
 import {Utils} from '../../common/Utils';
@@ -15,7 +15,8 @@ import {Utils} from '../../common/Utils';
     SelectedSocket: {
         ServerId: string,
         SocketId: string
-    }
+    },
+    StartedUp: boolean
  }
  type Validation = {
     CreateServer: {
@@ -58,16 +59,16 @@ export default class TCPServerPane extends React.Component<any, AppState> {
             SelectedSocket: {
                 ServerId: '',
                 SocketId: ''
-            }
+            },
+            StartedUp: false
         };
 
-        this.CreateSavedTcpServers();
-
-
-        //this.GetLiveTcpServerData();
+        this.GetLiveTcpServerData();
     }
 
     componentDidMount() {
+
+        this.OnNewSocketUpdateReceive = this.OnNewSocketUpdateReceive.bind(this);
 
         this.modalTcpServerCreate = new Modal(document.getElementById("modal-tcp-server-create"), {});
         this.modalSocketViewData = new Modal(document.getElementById("modal-remoteclient-receivedata"), {});
@@ -114,6 +115,7 @@ export default class TCPServerPane extends React.Component<any, AppState> {
                                 <tr>
                                     <th scope="col">Name</th>
                                     <th scope="col">Listening Port</th>
+                                    <th scope="col">Status</th>
                                     <th scope="col">Error</th>
                                     <th scope="col"></th>
                                 </tr>
@@ -125,6 +127,7 @@ export default class TCPServerPane extends React.Component<any, AppState> {
                                             <tr>
                                                 <th>{server.Name}</th>
                                                 <td><b>{server.ListeningPort}</b></td>
+                                                <td>{server.ConnStatus}</td>
                                                 <td><span style={{width: '30px'}}>{server.Error}</span></td>
                                                 <td>
                                                     <div className="dropdown">
@@ -132,9 +135,10 @@ export default class TCPServerPane extends React.Component<any, AppState> {
                                                             Actions
                                                         </button>
                                                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                            <li><a className="dropdown-item" href="#">Close</a></li>
-                                                            <li><a className="dropdown-item" href="#">Listen</a></li>
-                                                            <li><a className="dropdown-item" href="#">Remove</a></li>
+                                                            {
+                                                               this.RenderServerActionMenu(server)
+                                                            }
+                                                            <li><a className="dropdown-item">Remove</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -241,6 +245,15 @@ export default class TCPServerPane extends React.Component<any, AppState> {
 
 
             </div>
+        );
+    }
+
+    private RenderServerActionMenu(server: TcpServerView) {
+        return (
+            (server.ConnStatus == 'Listening') ?
+            <li><a className="dropdown-item">Stop Listening</a></li>
+            :
+            <li><a className="dropdown-item">Listen</a></li>
         );
     }
 

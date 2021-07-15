@@ -10,6 +10,10 @@ export class SocketView {
 
 }
 
+export interface ServerSocketView {
+    ListeningPort: number;
+}
+
 export class Protocol {
     static TCP: string = 'TCP';
     static HTTP: string = 'HTTP';

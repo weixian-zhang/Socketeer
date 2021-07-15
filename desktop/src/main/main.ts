@@ -1,8 +1,8 @@
-import { app, BrowserWindow } from 'electron';
+import { app, dialog, BrowserWindow, Menu } from 'electron';
 import isDev from 'electron-is-dev';
-import MainTcpCommCenter from './MainTcpCommCenter';
-import path from 'path';
-import Db from './Db';
+import TcpRendererIpc from './TcpRendererIpc';
+import {TcpServerManager} from './TcpServerManager';
+import * as _ from 'lodash';
 
 console.log(`${__dirname}/node_modules/electron`);
 // Enable live reload for Electron too
@@ -25,6 +25,7 @@ const createWindow = (): void => {
     }
   });
 
+
   console.log(`isDev: ${ isDev }`);
 
   //win.loadURL(`file://${__dirname}/index.html`);
@@ -34,16 +35,50 @@ const createWindow = (): void => {
       : `file://${__dirname}/index.html`,
   );
 
-
+  var menu = Menu.buildFromTemplate([
+    {
+        label: 'File',
+        submenu: [
+            {
+              label:'Import .soc File',
+              click() {
+                OpenSocFile(win);
+              }
+            },
+            {label:'Export .soc File'},
+            {
+              label:'Exit',
+              click() {
+                app.exit();
+              }
+            }
+        ]
+    }
+])
+Menu.setApplicationMenu(menu);
 
   win.maximize();
 
   win.webContents.openDevTools();
 
+  const tcpManager = TcpServerManager.Instance();
+  const tcpRendererIpc = TcpRendererIpc.Instance(win, tcpManager);
+  tcpManager.SetRendererIpc(tcpRendererIpc);
 
-  MainTcpCommCenter.Instance(win);
+  tcpManager.CreateSavedTcpServers();
 }
 
-console.log('');
-
 app.on('ready', createWindow);
+
+/**helpers */
+const OpenSocFile = (win: BrowserWindow):void => {
+  const dialogPromise = dialog.showOpenDialog(win, { properties: ['openFile'] });
+
+  dialogPromise.then((result) => {
+
+    const socFilePath: string = _.first(result.filePaths);
+
+  }).catch(err => {
+    console.log(err)
+  })
+}

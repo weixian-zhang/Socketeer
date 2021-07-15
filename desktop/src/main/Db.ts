@@ -1,7 +1,9 @@
 import DB from 'better-sqlite3-helper';
+import {ServerSocketView} from '../common/models/SocketView';
 import {TcpServerView} from '../common/models/TcpView';
 import { SocketView, Protocol, SocketType } from "../common/models/SocketView";
 import * as _ from 'lodash';
+import {Utils} from '../common/Utils';
 
 DB({
     path: './dist/Db/sqlite3.db', // this is the default
@@ -47,17 +49,27 @@ export default class Db {
         const tcpServers: TcpServerView[] = [];
 
         _.each(rows, function(r) {
-            tcpServers.push(r as TcpServerView)
+            const serverView: TcpServerView = JSON.parse(r.Info);
+            tcpServers.push(serverView)
         });
 
         return tcpServers;
     }
 
-    public AddSocket(socketView: SocketView, info: any): void {
-        const infoj: string = JSON.stringify(info);
-        // const insert: string =
-        //     `INSERT INTO ${this.activeSocketTable}(Id, Protocol, SocketType, Info)` +
-        //     `VALUES(${socket.Id}, ${socket.Protocol}, ${socket.SocketType}, ${infoj})`;
+    public IsServerPortTaken(port: number, protocol: string): boolean {
+        const rows: any[] =
+            DB().query(`SELECT Info FROM ${this.SocketViewTable} WHERE Protocol=? AND SocketType=?`, protocol, SocketType.Server);
+
+        for(let row of rows) {
+            const serverSocketView: ServerSocketView = JSON.parse(row.Info);
+           if(serverSocketView.ListeningPort == port)
+                return true;
+        }
+
+        return false;
+    }
+
+    public AddSocket(socketView: SocketView, infoj: string): void {
 
         DB().insert(this.SocketViewTable, {
             Id: socketView.Id,
@@ -65,14 +77,6 @@ export default class Db {
             SocketType: socketView.SocketType,
             Info: infoj
         });
-
-        // this.db.run(insert, function(err: Error) {
-        //     if (err) {
-        //       return console.log(err.message);
-        //     }
-        //   });
-
-        // this.db.close();
     }
 
     public RemoveSocket(socketView: SocketView): void {

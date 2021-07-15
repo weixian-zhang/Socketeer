@@ -9,28 +9,40 @@ import {
 import net, {Socket} from 'net';
 import { TcpDataView, TcpServerView } from '../common/models/TcpView';
 import { Utils } from '../common/Utils';
-import MainTcpCommCenter from './MainTcpCommCenter';
+import TcpRendererIpc from './TcpRendererIpc';
 import * as _ from 'lodash';
 
 //https://gist.github.com/sid24rane/2b10b8f4b2f814bd0851d861d3515a10
 
-export default class TcpServerManager {
+/** interface for Main process, separating implementations from Renderer initiated functions
+ * and Main process
+*/
+export interface TcpSocketManager {
+    CreateSavedSocket(): void;
+    //CreateServerSocketsFromSocFile(TcpServerView)
+    //CreateClientSocketsFromSocFile(TcpClientView)
+}
+
+export class TcpServerManager {
 
     private static instance: TcpServerManager;
     private contextOverseer: TcpServerContextOverseer;
-    private commsCenter: MainTcpCommCenter;
+    private rendererIpc: TcpRendererIpc;
 
-    constructor(commsCenter: MainTcpCommCenter) {
-        this.commsCenter = commsCenter;
-        this.contextOverseer = TcpServerContextOverseer.Instance(this.commsCenter);
+    constructor() {
+        this.contextOverseer = TcpServerContextOverseer.Instance(this.rendererIpc);
     }
 
-    public static Instance(commsCenter: MainTcpCommCenter): TcpServerManager {
+    public static Instance(): TcpServerManager {
         if(!TcpServerManager.instance) {
-            TcpServerManager.instance = new TcpServerManager(commsCenter);
+            TcpServerManager.instance = new TcpServerManager();
         }
 
         return TcpServerManager.instance;
+    }
+
+    public SetRendererIpc(rendererIpc: TcpRendererIpc) {
+        this.rendererIpc = rendererIpc;
     }
 
     public CreateSavedTcpServers = () => {
@@ -41,12 +53,14 @@ export default class TcpServerManager {
         });
     }
 
-
+    //TODO: create saved TCP server on startup, yet not conflict with
+    //liveservers empty
     public CreateTcpServer(viewInfo: TcpServerView): void {
 
         //check if port is in use
-        if(this.contextOverseer.IsListeningPortTaken(viewInfo.ListeningPort)) {
-            this.commsCenter.MessageToRenderer(`Listening port ${viewInfo.ListeningPort} is in use`);
+        if(this.contextOverseer.IsListeningPortSaved(viewInfo.ListeningPort) &&
+            this.contextOverseer.IsListeningPortTakenByLiveServers(viewInfo.ListeningPort)) {
+            this.rendererIpc.MessageToRenderer(`Listening port ${viewInfo.ListeningPort} is in use`);
             return;
         }
 
@@ -58,7 +72,7 @@ export default class TcpServerManager {
         tcpServer.on('close', () => {
             this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Closed);
 
-            this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
+            this.rendererIpc.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
         });
 
         tcpServer.on('error',(err: Error) => {
@@ -66,14 +80,14 @@ export default class TcpServerManager {
 
                 this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Error, err);
 
-                this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
+                this.rendererIpc.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
             }
         });
 
         tcpServer.on('listening', () => {
             this.contextOverseer.UpdateLiveServerState(tcpServer.Id, ServerConnStatus.Listening);
 
-            this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
+            this.rendererIpc.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
         });
 
 
@@ -87,12 +101,12 @@ export default class TcpServerManager {
             tcpSocket.setEncoding('utf-8');
 
             this.contextOverseer.AddLiveRemoteClient(tcpSocket);
-            this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
+            this.rendererIpc.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
 
             //remote client sends data to server
             tcpSocket.on( "data", (data: any) => {
                 this.contextOverseer.AppendReceiveOrSentData(data, tcpSocket.ServerId, tcpSocket.Id, true);
-                this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
+                this.rendererIpc.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
             });
 
             tcpSocket.on( "error", (err: Error) => {
@@ -109,7 +123,7 @@ export default class TcpServerManager {
 
             tcpSocket.on( "close", err => {
                 this.contextOverseer.RemoveLiveRemoteClient(tcpSocket.ServerId, tcpSocket.Id);
-                this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
+                this.rendererIpc.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
             });
 
         });
@@ -124,18 +138,18 @@ export default class TcpServerManager {
         const socket = this.contextOverseer.GetLiveClientSocket(serverId, socketId);
 
         if(Utils.IsUoN(socket)) {
-            this.commsCenter.MessageToRenderer('Error on Send-Data-To-Remote-Client, socket not found');
+            this.rendererIpc.MessageToRenderer('Error on Send-Data-To-Remote-Client, socket not found');
             return;
         }
 
         socket.write(data, (err: Error) => {
             if(!Utils.IsUoN(err))
-                this.commsCenter.MessageToRenderer(`Error on Send-Data-To-Remote-Client - ${err.message}`);
+                this.rendererIpc.MessageToRenderer(`Error on Send-Data-To-Remote-Client - ${err.message}`);
         });
 
         this.contextOverseer.AppendReceiveOrSentData(data, serverId, socketId, false);
 
-        this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
+        this.rendererIpc.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
     }
 
     public DisconnectRemoteClient(serverId: string, socketId: string) {
@@ -147,7 +161,7 @@ export default class TcpServerManager {
     }
 
     public GetLiveServerdata = (): void => {
-        this.commsCenter.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
+        this.rendererIpc.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
     }
 
     private NewTcpNetServer(): TcpServer {

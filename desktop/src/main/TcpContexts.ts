@@ -4,7 +4,7 @@ import Db from './Db';
 import { Protocol, SocketType, SocketView } from '../common/models/SocketView';
 import {Utils} from '../common/Utils';
 import * as _ from "lodash";
-import MainTcpCommCenter  from './MainTcpCommCenter';
+import TcpRendererIpc  from './TcpRendererIpc';
 
 export class TcpServer extends net.Server {
     Id: string = '';
@@ -39,24 +39,35 @@ export class TcpServerContextOverseer {
     private static instance: TcpServerContextOverseer;
     private liveServers: TcpServerContext[];
     private db: Db;
-    private commsCenter: MainTcpCommCenter;
+    private rendererIpc: TcpRendererIpc;
 
-    private constructor(commsCenter: MainTcpCommCenter) {
+    private constructor(rendererIpc: TcpRendererIpc) {
         this.liveServers = [];
         this.db = Db.Instance();
-        this.commsCenter = commsCenter;
+        this.rendererIpc = rendererIpc;
     }
 
-    public static Instance(commsCenter: MainTcpCommCenter): TcpServerContextOverseer {
+    public static Instance(rendererIpc: TcpRendererIpc): TcpServerContextOverseer {
         if (!TcpServerContextOverseer.instance) {
-            TcpServerContextOverseer.instance = new TcpServerContextOverseer(commsCenter);
+            TcpServerContextOverseer.instance = new TcpServerContextOverseer(rendererIpc);
         }
 
         return TcpServerContextOverseer.instance;
     }
 
     public GetAllSavedTcpServers(): TcpServerView[] {
-       return  this.db.GetAllTcpServers();
+       const serverFromJson =  this.db.GetAllTcpServers();
+
+       const serverResult: TcpServerView[] = [];
+
+       _.each(serverFromJson, function(s) {
+            const {Name, ListeningPort} = s;
+
+            //create instead from Json to preserve functions
+            serverResult.push(new TcpServerView(Name, ListeningPort));
+       });
+
+       return serverResult;
     }
 
     public GetAllLiveTcpServer(): TcpServerView[] {
@@ -67,12 +78,15 @@ export class TcpServerContextOverseer {
         return svrViews;
     }
 
-    public IsListeningPortTaken(port: number): boolean {
-       const server = this.liveServers.find(x => x.TcpServerView.ListeningPort == port);
-       if(!Utils.IsUoN(server))
-            return true;
-        else
+    public IsListeningPortTakenByLiveServers(port: number): boolean {
+        if(Utils.IsUoN(this.liveServers.find(x => x.TcpServerView.ListeningPort == port)))
             return false;
+        else
+            return true;
+     }
+
+    public IsListeningPortSaved(port: number): boolean {
+       return this.db.IsServerPortTaken(port, Protocol.TCP);
     }
 
     public GetServer(serverId: string) {
@@ -182,7 +196,7 @@ export class TcpServerContextOverseer {
             }
         }
 
-        this.commsCenter.SendNewServerStateToRenderer(this.GetAllLiveTcpServer());
+        this.rendererIpc.SendNewServerStateToRenderer(this.GetAllLiveTcpServer());
     }
 
     public RemoveLiveRemoteClient(serverId: string, socketId: string): void {

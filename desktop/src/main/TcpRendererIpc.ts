@@ -1,26 +1,26 @@
 import electron, {IpcMainEvent, BrowserWindow} from 'electron';
 import {TcpServerView, IpcType, TcpDataView} from '../common/models/TcpView';
-import TcpServerManager from './TcpServerManager';
+import {TcpServerManager} from './TcpServerManager';
 import { Utils } from '../common/Utils';
 
-export default class MainTcpCommCenter {
+export default class TcpRendererIpc {
 
-    private static instance: MainTcpCommCenter;
+    private static instance: TcpRendererIpc;
     private tcpManager: TcpServerManager;
     private browser: BrowserWindow;
 
-    private constructor(browser: BrowserWindow) {
-        this.tcpManager = TcpServerManager.Instance(this);
+    private constructor(browser: BrowserWindow, tcpManager: TcpServerManager) {
+        this.tcpManager = tcpManager;
         this.browser = browser;
         this.Init();
     }
 
-    public static Instance(browser: BrowserWindow): MainTcpCommCenter {
-        if(Utils.IsUoN(MainTcpCommCenter.instance)) {
-            MainTcpCommCenter.instance = new MainTcpCommCenter(browser);
+    public static Instance(browser: BrowserWindow, tcpManager: TcpServerManager): TcpRendererIpc {
+        if(Utils.IsUoN(TcpRendererIpc.instance)) {
+            TcpRendererIpc.instance = new TcpRendererIpc(browser, tcpManager);
         }
 
-        return MainTcpCommCenter.instance;
+        return TcpRendererIpc.instance;
     }
 
     public Init() {

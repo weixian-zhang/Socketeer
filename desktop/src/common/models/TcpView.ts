@@ -29,9 +29,9 @@ export class RemoteClientView {
     }
 }
 
-import { SocketView, SocketType, Protocol } from "./SocketView";
+import { SocketView, SocketType, Protocol, ServerSocketView } from "./SocketView";
 
-export class TcpServerView extends SocketView {
+export class TcpServerView extends SocketView implements ServerSocketView {
     Name: string = '';
     ListeningPort: number;
     ConnEstablishTime: Date;
@@ -44,6 +44,10 @@ export class TcpServerView extends SocketView {
 
         this.Name = name;
         this.ListeningPort = listeningPort;
+    }
+
+    public IsListening(): boolean {
+        return (this.ConnStatus == 'Listening') ? true : false;
     }
 }
 

@@ -71,6 +71,11 @@ export default class Db {
 
     public AddSocket(socketView: SocketView, infoj: string): void {
 
+        if(!Utils.IsUoN(socketView.ListeningPort)) {
+            if(this.IsServerPortTaken(socketView.ListeningPort, String(socketView.Protocol)))
+                return;
+        }
+
         DB().insert(this.SocketViewTable, {
             Id: socketView.Id,
             Protocol: socketView.Protocol,

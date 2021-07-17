@@ -1,6 +1,9 @@
 export class IpcType{
     static TCP_Server_Create_On_Startup: string = 'tcp-server-create-on-startup';
     static TCP_Server_Create: string = 'tcp-server-create';
+    static TCP_Server_StopListening: string = 'tcp-server-stoplistening';
+    static TCP_Server_Listen: string = 'tcp-server-listen';
+    static TCP_Server_Remove: string = 'tcp-server-remove';
     static TCP_Server_Disconnect_Remote_Client: string = 'tcp-server-disconnect-remote-client';
     static TCP_Server_GetData_UpdatedServerClients: string = 'tcp-server-getdata-updatedserveremoteclients';
     static TCP_Server_SendData_UpdatedServerClients: string = 'tcp-server-senddata-updatedserveremoteclients';
@@ -40,7 +43,7 @@ export class TcpServerView extends SocketView implements ServerSocketView {
     RemoteClients: RemoteClientView[] = [];
 
     constructor(name:string, listeningPort: number) {
-        super(SocketType.Server, Protocol.TCP);
+        super(SocketType.Server, Protocol.TCP, listeningPort);
 
         this.Name = name;
         this.ListeningPort = listeningPort;

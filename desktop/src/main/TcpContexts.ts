@@ -37,12 +37,12 @@ export class RemoteClientConnStatus {
 export class TcpServerContextOverseer {
 
     private static instance: TcpServerContextOverseer;
-    private liveServers: TcpServerContext[];
+    public LiveServers: TcpServerContext[];
     private db: Db;
     private rendererIpc: TcpRendererIpc;
 
     private constructor(rendererIpc: TcpRendererIpc) {
-        this.liveServers = [];
+        this.LiveServers = [];
         this.db = Db.Instance();
         this.rendererIpc = rendererIpc;
     }
@@ -63,8 +63,10 @@ export class TcpServerContextOverseer {
        _.each(serverFromJson, function(s) {
             const {Name, ListeningPort} = s;
 
-            //create instead from Json to preserve functions
-            serverResult.push(new TcpServerView(Name, ListeningPort));
+            //create new object instead of parsing from Json to preserve functions in TcpServerView
+            const newTcpView = new TcpServerView(Name, ListeningPort);
+            newTcpView.Id = s.Id
+            serverResult.push(newTcpView);
        });
 
        return serverResult;
@@ -73,13 +75,13 @@ export class TcpServerContextOverseer {
     public GetAllLiveTcpServer(): TcpServerView[] {
         const svrViews: TcpServerView[] = [];
 
-        _.each(this.liveServers, x => svrViews.push(x.TcpServerView));
+        _.each(this.LiveServers, x => svrViews.push(x.TcpServerView));
 
         return svrViews;
     }
 
     public IsListeningPortTakenByLiveServers(port: number): boolean {
-        if(Utils.IsUoN(this.liveServers.find(x => x.TcpServerView.ListeningPort == port)))
+        if(Utils.IsUoN(this.LiveServers.find(x => x.TcpServerView.ListeningPort == port)))
             return false;
         else
             return true;
@@ -90,7 +92,7 @@ export class TcpServerContextOverseer {
     }
 
     public GetServer(serverId: string) {
-        const server = this.liveServers.find(x => x.Id() == serverId);
+        const server = this.LiveServers.find(x => x.Id() == serverId);
         return server;
     }
 
@@ -101,7 +103,8 @@ export class TcpServerContextOverseer {
         viewInfo.Protocol = Protocol.TCP;
         viewInfo.SocketType = SocketType.Server;
 
-        this.liveServers.push(new TcpServerContext(viewInfo, tcpServer));
+
+        this.LiveServers.push(new TcpServerContext(viewInfo, tcpServer));
 
         const viewJ = JSON.stringify(viewInfo);
 
@@ -110,30 +113,26 @@ export class TcpServerContextOverseer {
 
     public RemoveServer(serverId: string): void {
 
-        const server = this.liveServers.find(x => x.Id() == serverId);
+        const serverContext = this.LiveServers.find(x => x.Id() == serverId);
 
-        if(server != null) {
-
-            this.db.RemoveSocket(server.TcpServerView as SocketView)
-
-            _.remove(this.liveServers, x => x.Id() == serverId);
-        }
+        this.db.RemoveSocket(serverContext.TcpServerView as SocketView)
+        _.remove(this.LiveServers, x => x.Id() == serverId);
     }
 
     public UpdateLiveServerState(serverId: string, connStatus: string, err?: Error | null,): void {
 
-        for(let index in this.liveServers) {
-            if(this.liveServers[index].Id() == serverId) {
+        for(let index in this.LiveServers) {
+            if(this.LiveServers[index].Id() == serverId) {
                 if(!Utils.IsUoN(err))
-                this.liveServers[index].TcpServerView.Error =  err.message;
-                this.liveServers[index].TcpServerView.ConnStatus =  connStatus;
+                this.LiveServers[index].TcpServerView.Error =  err.message;
+                this.LiveServers[index].TcpServerView.ConnStatus =  connStatus;
             }
         }
     }
 
     public GetLiveClientSocket(serverId: string, socketId: string): TcpSocket | null {
 
-        let serverContext = this.liveServers.find(x => x.Id() == serverId );
+        let serverContext = this.LiveServers.find(x => x.Id() == serverId );
 
         if(Utils.IsUoN(serverContext))
             return null;
@@ -148,7 +147,7 @@ export class TcpServerContextOverseer {
 
     public GetLiveClientView(serverId: string, socketId: string): RemoteClientView | null {
 
-        let serverContext = this.liveServers.find(x => x.Id() == serverId );
+        let serverContext = this.LiveServers.find(x => x.Id() == serverId );
 
         if(Utils.IsUoN(serverContext))
             return null;
@@ -169,7 +168,7 @@ export class TcpServerContextOverseer {
             new Date(), RemoteClientConnStatus.Connected);
 
 
-        const server =  this.liveServers.find(x => x.Id() == ServerId);
+        const server =  this.LiveServers.find(x => x.Id() == ServerId);
 
         if(!Utils.IsUoN(server)) {
 
@@ -183,7 +182,7 @@ export class TcpServerContextOverseer {
 
         const { Id, ServerId } = tcpSocket;
 
-        let tcpServerContext = this.liveServers.find(x => x.Id() == ServerId );
+        let tcpServerContext = this.LiveServers.find(x => x.Id() == ServerId );
 
         for(let index in tcpServerContext.TcpServerView.RemoteClients) {
             let c = tcpServerContext.TcpServerView.RemoteClients;
@@ -201,7 +200,7 @@ export class TcpServerContextOverseer {
 
     public RemoveLiveRemoteClient(serverId: string, socketId: string): void {
 
-        let tcpServerContext = this.liveServers.find(x => x.Id() == serverId );
+        let tcpServerContext = this.LiveServers.find(x => x.Id() == serverId );
 
         if(!Utils.IsUoN(tcpServerContext)) {
             //remote UI view
@@ -230,6 +229,7 @@ export class TcpServerContext {
     constructor(tcpServerView: TcpServerView, server: TcpServer) {
 
         this.TcpServerView = tcpServerView;
+        this.server = server;
         this.TcpServerView.ConnEstablishTime = new Date();
         this.TcpServerView.ConnStatus = ServerConnStatus[ServerConnStatus.NotListening];
         this.sockets = [];

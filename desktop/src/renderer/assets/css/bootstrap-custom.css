@@ -1,13 +1,18 @@
 .navbar-custom {
     height: 40px;
     width: 100%;
+    background-color: 	#696969
+}
+
+.fontcolor {
+    color: #00FFFF;
 }
 
 nav .navbar-nav li a{
-    color: white !important;
+    color: #00FFFF !important;
 }
 nav .navbar-nav  a{
-    color: white !important;
+    color: #00FFFF !important;
 }
 
 .modal-dialog-tcpdatar,

@@ -33,6 +33,27 @@ export default class TcpRendererIpc {
         electron.ipcMain.on(IpcType.TCP_Server_SendData_ToRemoteClient, this.OnSendDataToRemoteClient);
 
         electron.ipcMain.on(IpcType.TCP_Server_Disconnect_Remote_Client, this.OnDisconnectRemoteClient);
+
+        electron.ipcMain.on(IpcType.TCP_Server_StopListening, this.ServerStopListening);
+
+        electron.ipcMain.on(IpcType.TCP_Server_Listen, this.ServerStartListening);
+
+        electron.ipcMain.on(IpcType.TCP_Server_Remove, this.ServerRemove);
+    }
+
+    private ServerRemove = (event: IpcMainEvent, args: any): void => {
+        const serverId: string = args;
+        this.tcpManager.RemoveServer(serverId);
+    }
+
+    private ServerStartListening = (event: IpcMainEvent, args: any): void => {
+        const {serverId, port} = JSON.parse(args);
+        this.tcpManager.ServerStartListen(serverId, port);
+    }
+
+    private ServerStopListening = (event: IpcMainEvent, args: any): void => {
+        const serverId: string = args;
+        this.tcpManager.ServerStopListening(serverId);
     }
 
     private CreateSavedTcpServers = (event: IpcMainEvent, args: any): void => {

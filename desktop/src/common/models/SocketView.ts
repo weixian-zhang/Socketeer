@@ -1,11 +1,13 @@
 export class SocketView {
     Id: string = '';
-    SocketType: SocketType
-    Protocol: Protocol
+    SocketType: SocketType;
+    Protocol: Protocol;
+    ListeningPort?: number;
 
-    constructor(socketType: SocketType, protocol: Protocol) {
+    constructor(socketType: SocketType, protocol: Protocol, listeningPort?: number) {
         this.SocketType = socketType;
         this.Protocol = protocol;
+        this.ListeningPort = listeningPort;
     }
 
 }

@@ -102,7 +102,7 @@ export default class TCPServerPane extends React.Component<any, AppState> {
                      <button type="button" className="btn btn-secondary btn-mr-5"
                             data-bs-toggle="modal" data-bs-target="#modal-tcp-server-create">
                                 <FontAwesomeIcon  icon={faPlus} />
-                                TCP Server
+                                <span className="fontcolor">TCP Server</span>
                             </button>
 
                     </div>
@@ -138,7 +138,7 @@ export default class TCPServerPane extends React.Component<any, AppState> {
                                                             {
                                                                this.RenderServerActionMenu(server)
                                                             }
-                                                            <li><a className="dropdown-item">Remove</a></li>
+                                                            <li><a className="dropdown-item" onClick={(e) => this.RemoveServer(server.Id)}>Remove</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -251,9 +251,9 @@ export default class TCPServerPane extends React.Component<any, AppState> {
     private RenderServerActionMenu(server: TcpServerView) {
         return (
             (server.ConnStatus == 'Listening') ?
-            <li><a className="dropdown-item">Stop Listening</a></li>
+            <li><a className="dropdown-item" onClick={(e) => this.ServerStopListening(server.Id)}>Stop Listening</a></li>
             :
-            <li><a className="dropdown-item">Listen</a></li>
+            <li><a className="dropdown-item" onClick={(e) => this.ServerStartListening(server.Id, server.ListeningPort)}>Listen</a></li>
         );
     }
 
@@ -408,6 +408,21 @@ export default class TCPServerPane extends React.Component<any, AppState> {
     private ShowMessageFromMain = (message: string) => {
         $("#modal-show-message-from-main-message").text(message);
         this.modalShowMsgFromMain.show();
+    }
+
+    private ServerStopListening(serverId: string): void {
+        electron.ipcRenderer.send(IpcType.TCP_Server_StopListening, serverId);
+    }
+
+    private ServerStartListening(serverId: string, port: number): void {
+        electron.ipcRenderer.send(IpcType.TCP_Server_Listen, JSON.stringify({
+            serverId: serverId,
+            port: port
+        }));
+    }
+
+    private RemoveServer(serverId: string): void {
+        electron.ipcRenderer.send(IpcType.TCP_Server_Remove, serverId);
     }
 
     private CreateNewTcpServer = (event: any) => {

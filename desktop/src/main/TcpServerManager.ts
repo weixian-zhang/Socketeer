@@ -49,13 +49,53 @@ export class TcpServerManager {
         const savedServers: TcpServerView[] = this.contextOverseer.GetAllSavedTcpServers();
 
         _.each(savedServers, (s) => {
-            this.CreateTcpServer(s);
+            this.CreateTcpServer(s, true);
         });
+    }
+
+    public RemoveServer(serverId: string): void {
+        this.ServerStopListening(serverId, () => {
+            this.contextOverseer.RemoveServer(serverId);
+        });
+    }
+
+    public ServerStartListen(serverId: string, port: number): void {
+        const serverContext = this.contextOverseer.GetServer(serverId);
+
+        if(!serverContext.server.listening) {
+            serverContext.server.listen(port);
+        }
+    }
+
+    public ServerStopListening(serverId: string, callback?: ()=>void): void {
+        const serverContext = this.contextOverseer.GetServer(serverId);
+
+        if(serverContext.server.listening) {
+
+            serverContext.sockets.forEach((s) => {
+                s.destroy();
+            });
+
+            serverContext.server.close((err) => {
+                if(!Utils.IsUoN(err)){
+                    this.rendererIpc.MessageToRenderer(`Error on closing Server ${serverContext.TcpServerView.Name}: ${err.message}`)
+                }
+
+                serverContext.server.unref();
+            })
+
+            serverContext.sockets = [];
+            serverContext.TcpServerView.RemoteClients = [];
+        }
+
+        if(!Utils.IsUoN(callback)) {
+            callback();
+        }
     }
 
     //TODO: create saved TCP server on startup, yet not conflict with
     //liveservers empty
-    public CreateTcpServer(viewInfo: TcpServerView): void {
+    public CreateTcpServer(viewInfo: TcpServerView, isFromSavedView?: boolean): void {
 
         //check if port is in use
         if(this.contextOverseer.IsListeningPortSaved(viewInfo.ListeningPort) &&
@@ -64,7 +104,14 @@ export class TcpServerManager {
             return;
         }
 
-        const tcpServer: TcpServer = this.NewTcpNetServer();
+        let tcpServer: TcpServer;
+
+        if(!Utils.IsUoN(isFromSavedView) && isFromSavedView) {
+            tcpServer = this.NewTcpNetServer(viewInfo.Id);
+        } else {
+            tcpServer = this.NewTcpNetServer();
+        }
+
 
         tcpServer.maxConnections = 10;
 
@@ -96,6 +143,7 @@ export class TcpServerManager {
 
             const tcpSocket: TcpSocket = socket as TcpSocket;
             tcpSocket.ServerId = tcpServer.Id;
+
             tcpSocket.Id = Utils.Uid();
 
             tcpSocket.setEncoding('utf-8');
@@ -164,12 +212,17 @@ export class TcpServerManager {
         this.rendererIpc.SendNewServerStateToRenderer(this.contextOverseer.GetAllLiveTcpServer());
     }
 
-    private NewTcpNetServer(): TcpServer {
+    private NewTcpNetServer(serverId?: string): TcpServer {
 
         const server = net.createServer();
 
         const tcpServer: TcpServer = server as TcpServer;
-        tcpServer.Id = Utils.Uid();
+
+        if(!Utils.IsUoN(serverId)) {
+            tcpServer.Id = serverId
+        } else {
+            tcpServer.Id = Utils.Uid();
+        }
 
         return tcpServer;
     }

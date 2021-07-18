@@ -13,9 +13,6 @@ export default class NavBar extends React.Component {
                     <nav className="nav nav-tabs navbar-expand-md navbar-custom justify-content-center">
                         <ul className="navbar-nav mr-auto">
                             <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard">Dashboard</Link>
-                            </li>
-                            <li className="nav-item">
                                 <Link className="nav-link" to="/tcp">TCP Server</Link>
                             </li>
                         </ul>

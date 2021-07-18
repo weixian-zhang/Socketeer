@@ -16,8 +16,7 @@ export default class App extends React.Component {
                 <div className="container-fluid">
                     <NavBar />
                     <Switch>
-                            <Route exact path="/" render={() => <Dashboard />} />
-                            <Route path="/dashboard" render={() => <Dashboard />} />
+                            <Route exact path="/" render={() => <TCPServerPane />} />
                             <Route path="/tcp" render={() => <TCPServerPane />} />
                         </Switch>
                 </div>

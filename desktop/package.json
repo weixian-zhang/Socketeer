@@ -7,6 +7,7 @@
     "electron-rebuild-sqlite3": "electron-rebuild -f -w sqlite3",
     "webpack-build": "webpack",
     "webpack-serve": "webpack serve --config webpack.react.js --mode development --hot --inline",
+    "electron-dist": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -24,7 +25,9 @@
     "concurrently": "^6.2.0",
     "css-loader": "^5.2.6",
     "electron": "^13.1.4",
+    "electron-builder": "^22.11.7",
     "electron-is-dev": "^2.0.0",
+    "electron-packager": "^15.3.0",
     "electron-rebuild": "^2.3.5",
     "electron-reload": "^1.5.0",
     "exports-loader": "^3.0.0",

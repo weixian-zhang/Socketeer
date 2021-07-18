@@ -59,7 +59,11 @@ Menu.setApplicationMenu(menu);
 
   win.maximize();
 
-  win.webContents.openDevTools();
+  win.title = "Socketeer";
+
+  if(isDev){
+    win.webContents.openDevTools();
+  }
 
   const tcpManager = TcpServerManager.Instance();
   const tcpRendererIpc = TcpRendererIpc.Instance(win, tcpManager);

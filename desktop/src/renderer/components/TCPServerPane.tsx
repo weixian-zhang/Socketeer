@@ -102,7 +102,7 @@ export default class TCPServerPane extends React.Component<any, AppState> {
                      <button type="button" className="btn btn-secondary btn-mr-5"
                             data-bs-toggle="modal" data-bs-target="#modal-tcp-server-create">
                                 <FontAwesomeIcon  icon={faPlus} />
-                                <span className="fontcolor">TCP Server</span>
+                                <span className="theme">TCP Server</span>
                             </button>
 
                     </div>
@@ -192,8 +192,8 @@ export default class TCPServerPane extends React.Component<any, AppState> {
                         </div>
 
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-success" onClick={e => this.CreateNewTcpServer(e)}>Create</button>
+                            <button type="button" className="btn btn-theme" data-bs-dismiss="modal"><span className="theme">Close</span></button>
+                            <button type="button" className="btn btn-theme" onClick={e => this.CreateNewTcpServer(e)}><span className="theme">Create</span></button>
                         </div>
                         </div>
                     </div>

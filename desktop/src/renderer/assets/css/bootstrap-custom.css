@@ -4,8 +4,17 @@
     background-color: 	#696969
 }
 
-.fontcolor {
+.theme {
     color: #00FFFF;
+}
+
+.btn-theme,
+.btn-theme:hover,
+.btn-theme:active,
+.btn-theme:visited,
+.btn-theme:focus {
+    background-color: 	#919191 !important;
+    border-color: #919191 !important;
 }
 
 nav .navbar-nav li a{
